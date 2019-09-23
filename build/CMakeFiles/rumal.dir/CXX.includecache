@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/neel/Projects/rumal/main.cpp
+iostream
+-
+string
+-
+boost/hana/tuple.hpp
+-
+boost/hana/for_each.hpp
+-
+boost/format.hpp
+-
+
