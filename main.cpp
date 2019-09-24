@@ -297,6 +297,7 @@ struct css_selector: html::html_tag<T...>{
         stream << base_type::_name << "{" << std::endl << "\t";
         folded_attribute_writer<css_tag_trait, typename base_type::arguments_type>::write(stream, base_type::_arguments);
         boost::hana::for_each(base_type::_children, [&](const auto& elem) {
+            stream << std::endl;
             html::helper::write(stream, elem);
         });
         stream << std::endl << "}" << std::endl;
