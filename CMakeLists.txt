@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.0)
 
 project(rumal)
 
-add_executable(rumal main.cpp)
+SET(CMAKE_CXX_STANDARD 14)
+SET(CMAKE_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=1 ${CMAKE_CXX_FLAGS}")
+SET(CMAKE_CXX_FLAGS "-ftemplate-backtrace-limit=0 ${CMAKE_CXX_FLAGS}")
 
-install(TARGETS rumal RUNTIME DESTINATION bin)
+find_package(Boost REQUIRED)
+add_library(rumal INTERFACE)
+target_include_directories(rumal INTERFACE includes/)
+target_link_libraries(rumal INTERFACE Boost::boost)
+
+add_subdirectory(examples/)

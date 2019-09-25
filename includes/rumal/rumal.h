@@ -1,4 +1,31 @@
-#include <iostream>
+/*
+ * Copyright (c) 2018, Sunanda Bose (Neel Basu) (neel.basu.z@gmail.com) 
+ * All rights reserved. 
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met: 
+ * 
+ *  * Redistributions of source code must retain the above copyright notice, 
+ *    this list of conditions and the following disclaimer. 
+ *  * Redistributions in binary form must reproduce the above copyright 
+ *    notice, this list of conditions and the following disclaimer in the 
+ *    documentation and/or other materials provided with the distribution. 
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY 
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY 
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
+ * DAMAGE. 
+ */
+
+#ifndef RUMAL_H
+#define RUMAL_H
 
 #include <string>
 #include <boost/hana/tuple.hpp>
@@ -7,8 +34,6 @@
 
 #define DEFINE_HTML_ATTRIBUTE(name) template <typename T> auto name(T value){return rumal::html::attr(#name, value);}
 #define DEFINE_LABELED_HTML_ATTRIBUTE(name, label) template <typename T> auto name(T value){return rumal::html::attr(label, value);}
-#define DEFINE_CSS_ATTRIBUTE(name) template <typename T> auto name(T value){return rumal::css::attr(#name, value);}
-#define DEFINE_LABELED_CSS_ATTRIBUTE(name, label) template <typename T> auto name(T value){return rumal::css::attr(label, value);}
 #define DEFINE_HTML_TAG(name)                                   \
     template <typename Args, typename... T>                     \
     auto name(Args args, T... elems){                           \
@@ -278,15 +303,10 @@ struct css_tag_trait{
 };
 
 template <typename T>
-attribute<css_attribute_trait, T> attr(const std::string& key, T value){
+attribute<css_attribute_trait, T> prop(const std::string& key, T value){
     return attribute<css_attribute_trait, T>(key, value);
 }
-
-namespace attrs{
-    DEFINE_CSS_ATTRIBUTE(position)
-    DEFINE_CSS_ATTRIBUTE(display)
-}
-    
+ 
 template <typename... T>
 struct css_selector: html::html_tag<T...>{
     typedef html::html_tag<T...> base_type;
@@ -320,28 +340,4 @@ std::ostream& operator<<(std::ostream& stream, const css_selector<T...>& elem){
 
 }
 
-int main(int argc, char **argv){
-    using namespace rumal::html::attrs;
-    using namespace rumal::html::tags;
-    using namespace rumal::css::attrs;
-   
-    auto content = div(id(42) / klass("test"),
-                        span(id(42) / width(42.042) / height(42.042) / klass("test"),
-                            42
-                        ),
-                        span(
-                            84
-                        )
-                    );
-    std::cout << content << std::endl;
-   
-    std::cout << span(84) << std::endl;
-    std::cout << span(id(42), 84) << std::endl;
-    std::cout << span(id(42) / klass("test"), 84) << std::endl;
-    std::cout << span(id(42) / width(42.042) / height(42.042) / klass("test"), 84) << std::endl;
-    
-    std::cout << rumal::css::select(".heading", position("relative") / display("block"), rumal::css::select(".content", position("relative") / display("block")));
-   
-    std::cout << "Hello, world!" << std::endl;
-    return 0;
-}
+#endif // RUMAL_H

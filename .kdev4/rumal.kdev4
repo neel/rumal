@@ -32,3 +32,9 @@ Project Target=rumal,rumal
 Use External Terminal=false
 Working Directory=
 isExecutable=false
+
+[Project]
+VersionControlSupport=kdevgit
+
+[SourceFileTemplates]
+LastUsedTemplate=/home/neel/.local/share/kdevfiletemplates/template_descriptions/cpp_basic.desktop
