@@ -119,7 +119,7 @@ namespace html{
 struct html_attribute_trait{
     template <typename StreamT, typename T>
     static StreamT& write(StreamT& stream, const std::string& key, T value){
-        stream << boost::format("%1%=%2%") % key % value;
+        stream << boost::format("%1%='%2%'") % key % value;
         return stream;
     }
     static auto sep(){
@@ -157,15 +157,18 @@ namespace helper{
 
 template <typename StreamT, typename ElemT>
 struct writer{
-    static StreamT& write(StreamT& stream, const ElemT& elem){
-        stream << elem;
+    static StreamT& write(StreamT& stream, const ElemT& elem, int indent = 0){
+        for(int i = 0; i < indent; ++i){
+            stream << "\t";
+        }
+        stream << elem << std::endl;
         return stream;
     }
 };
 
 template <typename StreamT, typename U>
-StreamT& write(StreamT& stream, const U& elem){
-    writer<StreamT, U>::write(stream, elem);
+StreamT& write(StreamT& stream, const U& elem, int indent = 0){
+    writer<StreamT, U>::write(stream, elem, indent);
     return stream;
 }
    
@@ -189,12 +192,18 @@ struct stripped_parameters{
     
     stripped_parameters(T... children): _children(children...){}
     template <typename StreamT>
-    StreamT& write(StreamT& stream, const std::string& name) const{
-        stream << "<" << name << ">";
+    StreamT& write(StreamT& stream, const std::string& name, int indent = 0) const{
+        for(int i = 0; i < indent; ++i){
+            stream << "\t";
+        }
+        stream << "<" << name << ">" << std::endl;
         boost::hana::for_each(_children, [&](const auto& elem) {
-            helper::write(stream, elem);
+            helper::write(stream, elem, indent+1);
         });
-        stream << "</" << name << ">";
+        for(int i = 0; i < indent; ++i){
+            stream << "\t";
+        }
+        stream << "</" << name << ">" << std::endl;
         return stream;
     }
 };
@@ -209,14 +218,20 @@ struct stripped_parameters<folded_attribute<U, V>, T...>{
     
     stripped_parameters(arguments_type args, T... children): _arguments(args), _children(children...){}
     template <typename StreamT>
-    StreamT& write(StreamT& stream, const std::string& name) const{
+    StreamT& write(StreamT& stream, const std::string& name, int indent = 0) const{
+        for(int i = 0; i < indent; ++i){
+            stream << "\t";
+        }
         stream << "<" << name << " ";
         folded_attribute_writer<html_tag_trait, arguments_type>::write(stream, _arguments);
-        stream << ">";
+        stream << ">"  << std::endl;
         boost::hana::for_each(_children, [&](const auto& elem) {
-            helper::write(stream, elem);
+            helper::write(stream, elem, indent+1);
         });
-        stream << "</" << name << ">";
+        for(int i = 0; i < indent; ++i){
+            stream << "\t";
+        }
+        stream << "</" << name << ">" << std::endl;
         return stream;
     }
 };
@@ -236,8 +251,8 @@ struct html_tag: stripped_parameters<T...>{
 
     html_tag(const std::string& name, T... params): _name(name), base_type(params...){}
     template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        base_type::write(stream, _name);
+    StreamT& write(StreamT& stream, int indent = 0) const{
+        base_type::write(stream, _name, indent);
         return stream;
     }
 };
@@ -246,8 +261,8 @@ namespace helper{
 
 template <typename StreamT, typename... T>
 struct writer<StreamT, html_tag<T...>>{
-    static StreamT& write(StreamT& stream, const html_tag<T...>& elem){
-        elem.write(stream);
+    static StreamT& write(StreamT& stream, const html_tag<T...>& elem, int indent = 0){
+        elem.write(stream, indent);
         return stream;
     }
 };
@@ -266,6 +281,8 @@ auto tag(const std::string& name, T... elems){
 
 namespace tags{
     DEFINE_HTML_TAG(div)
+    DEFINE_HTML_TAG(h1)
+    DEFINE_HTML_TAG(h2)
     DEFINE_HTML_TAG(span)
     DEFINE_HTML_TAG(img)
     DEFINE_HTML_TAG(script)
