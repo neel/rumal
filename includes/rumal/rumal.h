@@ -324,7 +324,47 @@ template <typename T>
 attribute<css_attribute_trait, T> prop(const std::string& key, T value){
     return attribute<css_attribute_trait, T>(key, value);
 }
- 
+
+// { folder tag writer
+
+template <typename U, typename V = void>
+struct folded_tag{
+    typedef U head_type;
+    typedef V tail_type;
+
+    head_type _head;
+    tail_type _tail;
+
+    folded_tag(const head_type& head, const tail_type& tail): _head(head), _tail(tail){}
+    std::ostream& write(std::ostream& stream) const {
+        stream << _head;
+        stream << _tail;
+        return stream;
+    }
+};
+
+template <typename U>
+struct folded_tag<U, void>{
+    typedef U head_type;
+    typedef void tail_type;
+
+    head_type _head;
+
+    folded_tag(const head_type& head): _head(head){}
+    std::ostream& write(std::ostream& stream) const {
+        stream << _head;
+        return stream;
+    }
+};
+//
+template <typename U, typename V>
+std::ostream& operator<<(std::ostream& stream, const folded_tag<U, V>& tag){
+    tag.write(stream);
+    return stream;
+}
+
+// }
+
 template <typename... T>
 struct css_selector: html::html_tag<T...>{
     typedef html::html_tag<T...> base_type;
@@ -342,7 +382,20 @@ struct css_selector: html::html_tag<T...>{
         ancestors.pop_back();
         return stream;
     }
+    template <typename... V>
+    auto operator/(const css_selector<V...>& other){
+        typedef css_selector<V...> other_type;
+        typedef folded_tag<css_selector<T...>, void> self_type;
+        return folded_tag<other_type, self_type>(other, self_type(*this));
+    }
 };
+
+template <typename U, typename V, typename... T>
+auto operator/(const folded_tag<U, V> left, const css_selector<T...>& right){
+    typedef css_selector<T...> right_type;
+    typedef folded_tag<U, V> left_type;
+    return folded_tag<right_type, left_type>(right, left_type(left));
+}
 
 template <typename U, typename V, typename... T>
 auto select(const std::string& name, folded_attribute<U, V> args, T... elems){
