@@ -28,9 +28,10 @@
 #define RUMAL_H
 
 #include <string>
+#include <boost/format.hpp>
 #include <boost/hana/tuple.hpp>
 #include <boost/hana/for_each.hpp>
-#include <boost/format.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 #define DEFINE_HTML_ATTRIBUTE(name) template <typename T> auto name(T value){return rumal::html::attr(#name, value);}
 #define DEFINE_LABELED_HTML_ATTRIBUTE(name, label) template <typename T> auto name(T value){return rumal::html::attr(label, value);}
@@ -330,14 +331,15 @@ struct css_selector: html::html_tag<T...>{
     
     css_selector(const std::string& name, T... args): base_type(name, args...){}    
     template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << base_type::_name << "{" << std::endl << "\t";
+    StreamT& write(StreamT& stream, std::vector<std::string>& ancestors) const{
+        ancestors.push_back(base_type::_name);
+        stream << boost::algorithm::join(ancestors, " > ") << "{" << std::endl << "\t";
         folded_attribute_writer<css_tag_trait, typename base_type::arguments_type>::write(stream, base_type::_arguments);
-        boost::hana::for_each(base_type::_children, [&](const auto& elem) {
-            stream << std::endl;
-            html::helper::write(stream, elem);
-        });
         stream << std::endl << "}" << std::endl;
+        boost::hana::for_each(base_type::_children, [&](const auto& elem) {
+            elem.write(stream, ancestors);
+        });
+        ancestors.pop_back();
         return stream;
     }
 };
@@ -349,7 +351,8 @@ auto select(const std::string& name, folded_attribute<U, V> args, T... elems){
 
 template <typename... T>
 std::ostream& operator<<(std::ostream& stream, const css_selector<T...>& elem){
-    elem.write(stream);
+    std::vector<std::string> ancestors;
+    elem.write(stream, ancestors);
     return stream;
 }
     

@@ -28,7 +28,7 @@ int main(int argc, char **argv){
     std::cout << css::select(".heading", 
                     css::prop("position", "relative") / 
                     css::prop("display", "block"), 
-                    rumal::css::select(".content", 
+                    css::select(".content",
                         css::prop("position", "relative") / 
                         css::prop("display", "block")
                     )
