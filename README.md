@@ -1,5 +1,7 @@
 rumal (রুমাল) is a tiny header only single file HTML/CSS generator C++ library
 ---
+[![pipeline status](https://gitlab.com/neel.basu/rumal/badges/master/pipeline.svg)](https://gitlab.com/neel.basu/rumal/commits/master) 
+
 
 ## Example
 
