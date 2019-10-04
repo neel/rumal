@@ -106,12 +106,12 @@ struct folded_attribute_writer<P, folded_attribute<U, void>>{
 
 
 template <typename P, typename U, typename V>
-auto operator/(attribute<P, U> left, attribute<P, V> right){
+auto operator/(const attribute<P, U>& left, const attribute<P, V>& right){
     return folded_attribute<attribute<P, V>, folded_attribute<attribute<P, U>, void>>(right, folded_attribute<attribute<P, U>, void>(left));
 }
 
 template <typename P, typename H, typename T, typename V>
-auto operator/(folded_attribute<H, T> left, attribute<P, V> right){
+auto operator/(const folded_attribute<H, T>& left, const attribute<P, V>& right){
     return folded_attribute<attribute<P, V>, folded_attribute<H, T>>(right, left);
 }
 
@@ -217,7 +217,7 @@ struct stripped_parameters<folded_attribute<U, V>, T...>{
     arguments_type _arguments;
     children_type  _children;
     
-    stripped_parameters(arguments_type args, T... children): _arguments(args), _children(children...){}
+    stripped_parameters(const arguments_type& args, T... children): _arguments(args), _children(children...){}
     template <typename StreamT>
     StreamT& write(StreamT& stream, const std::string& name, int indent = 0) const{
         for(int i = 0; i < indent; ++i){
@@ -271,7 +271,7 @@ struct writer<StreamT, html_tag<T...>>{
 }
 
 template <typename U, typename V, typename... T>
-auto tag(const std::string& name, folded_attribute<U, V> args, T... elems){
+auto tag(const std::string& name, const folded_attribute<U, V>& args, T... elems){
     return html_tag<folded_attribute<U, V>, T...>(name, args, elems...);
 }
 
@@ -398,7 +398,7 @@ auto operator/(const folded_tag<U, V> left, const css_selector<T...>& right){
 }
 
 template <typename U, typename V, typename... T>
-auto select(const std::string& name, folded_attribute<U, V> args, T... elems){
+auto select(const std::string& name, const folded_attribute<U, V>& args, T... elems){
     return css_selector<folded_attribute<U, V>, T...>(name, args, elems...);
 }
 
