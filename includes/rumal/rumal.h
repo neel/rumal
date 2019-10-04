@@ -37,11 +37,11 @@
 #define DEFINE_LABELED_HTML_ATTRIBUTE(name, label) template <typename T> auto name(T value){return rumal::html::attr(label, value);}
 #define DEFINE_HTML_TAG(name)                                   \
     template <typename Args, typename... T>                     \
-    auto name(Args args, T... elems){                           \
+    auto name(Args args, const T&... elems){                    \
         return tag<Args, T...>(#name, args, elems...);          \
     }                                                           \
     template <typename... T>                                    \
-    auto name(T... elems){                                      \
+    auto name(const T&... elems){                               \
         return tag<void, T...>(#name, elems...);                \
     }
 
@@ -250,7 +250,7 @@ struct html_tag: stripped_parameters<T...>{
     
     std::string _name;
 
-    html_tag(const std::string& name, T... params): _name(name), base_type(params...){}
+    html_tag(const std::string& name, const T&... params): _name(name), base_type(params...){}
     template <typename StreamT>
     StreamT& write(StreamT& stream, int indent = 0) const{
         base_type::write(stream, _name, indent);
@@ -276,7 +276,7 @@ auto tag(const std::string& name, const folded_attribute<U, V>& args, T... elems
 }
 
 template <typename... T>
-auto tag(const std::string& name, T... elems){
+auto tag(const std::string& name, const T&... elems){
     return html_tag<T...>(name, elems...);
 }
 
@@ -369,7 +369,7 @@ template <typename... T>
 struct css_selector: html::html_tag<T...>{
     typedef html::html_tag<T...> base_type;
     
-    css_selector(const std::string& name, T... args): base_type(name, args...){}    
+    css_selector(const std::string& name, const T&... args): base_type(name, args...){}    
     template <typename StreamT>
     StreamT& write(StreamT& stream, std::vector<std::string>& ancestors) const{
         ancestors.push_back(base_type::_name);
@@ -391,14 +391,14 @@ struct css_selector: html::html_tag<T...>{
 };
 
 template <typename U, typename V, typename... T>
-auto operator/(const folded_tag<U, V> left, const css_selector<T...>& right){
+auto operator/(const folded_tag<U, V>& left, const css_selector<T...>& right){
     typedef css_selector<T...> right_type;
     typedef folded_tag<U, V> left_type;
     return folded_tag<right_type, left_type>(right, left_type(left));
 }
 
 template <typename U, typename V, typename... T>
-auto select(const std::string& name, const folded_attribute<U, V>& args, T... elems){
+auto select(const std::string& name, const folded_attribute<U, V>& args, const T&... elems){
     return css_selector<folded_attribute<U, V>, T...>(name, args, elems...);
 }
 
