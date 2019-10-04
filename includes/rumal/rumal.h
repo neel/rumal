@@ -47,6 +47,13 @@
 
 namespace rumal{
    
+/**
+ * @brief generic key value pair
+ * @details
+ * Usage: Generic key value pairs used for html attributes as well as for CSS properties, <tt>key</tt> is always `std::string`
+ * @tparam P presentation trait
+ * @tparam T type of the value
+ */
 template <typename P, typename T>
 struct attribute{
     typedef T value_type;
@@ -62,6 +69,14 @@ struct attribute{
     }
 };
 
+/**
+ * @brief chain of multiple atributes
+ * @details
+ * Usage: used for HTML tag attributes as well as for CSS properties
+ * @note read in the reverse order
+ * @tparam U head type
+ * @tparam V tail type 
+ */
 template <typename U, typename V = void>
 struct folded_attribute{
     typedef U head_type;
@@ -83,6 +98,12 @@ struct folded_attribute<U, void>{
     folded_attribute(const head_type& head): _head(head){}
 };
 
+/**
+ * @brief writes folded attribute to a stream
+ * @see folded_attribute
+ * @tparam P presentation trait
+ * @tparam F folded attribute
+ */
 template <typename P, typename F>
 struct folded_attribute_writer{
     template <typename StreamT>
@@ -104,12 +125,23 @@ struct folded_attribute_writer<P, folded_attribute<U, void>>{
     }
 };
 
-
+/**
+ * @brief concatenate two attributes 
+ * @param left lhs attribute
+ * @param right rhs attribute
+ * @return folded_attribute
+ */
 template <typename P, typename U, typename V>
 auto operator/(const attribute<P, U>& left, const attribute<P, V>& right){
     return folded_attribute<attribute<P, V>, folded_attribute<attribute<P, U>, void>>(right, folded_attribute<attribute<P, U>, void>(left));
 }
 
+/**
+ * @brief concatenate a folded attribute with an attributes
+ * @param left lhs folded_attribute
+ * @param right rhs attribute
+ * @return folded_attribute
+ */
 template <typename P, typename H, typename T, typename V>
 auto operator/(const folded_attribute<H, T>& left, const attribute<P, V>& right){
     return folded_attribute<attribute<P, V>, folded_attribute<H, T>>(right, left);
@@ -117,6 +149,9 @@ auto operator/(const folded_attribute<H, T>& left, const attribute<P, V>& right)
 
 namespace html{
    
+/**
+ * @brief html attribute printing trait
+ */
 struct html_attribute_trait{
     template <typename StreamT, typename T>
     static StreamT& write(StreamT& stream, const std::string& key, T value){
@@ -128,7 +163,10 @@ struct html_attribute_trait{
     }
 };
 
-   
+/**
+ * @brief generate an attribute from key and value
+ * @tparam T value type
+ */   
 template <typename T>
 attribute<html_attribute_trait, T> attr(const std::string& key, T value){
     return attribute<html_attribute_trait, T>(key, value);
