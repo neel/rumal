@@ -37,7 +37,7 @@
 #define DEFINE_LABELED_HTML_ATTRIBUTE(name, label) template <typename T> auto name(T value){return rumal::html::attr(label, value);}
 #define DEFINE_HTML_TAG(name)                                   \
     template <typename Args, typename... T>                     \
-    auto name(Args args, const T&... elems){                    \
+    auto name(const Args& args, const T&... elems){                    \
         return tag<Args, T...>(#name, args, elems...);          \
     }                                                           \
     template <typename... T>                                    \
