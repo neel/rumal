@@ -1,5 +1,6 @@
 rumal (রুমাল) is a tiny header only single file HTML/CSS generator C++ library
 ---
+[![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
 [![pipeline status](https://gitlab.com/neel.basu/rumal/badges/master/pipeline.svg)](https://gitlab.com/neel.basu/rumal/commits/master) 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6a8f875202b14287ab4261a44227b7b1)](https://www.codacy.com/manual/neel.basu.z/rumal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=neel/rumal&amp;utm_campaign=Badge_Grade)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/neel/rumal.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/neel/rumal/alerts/)
