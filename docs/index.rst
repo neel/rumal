@@ -1,7 +1,7 @@
 rumal (রুমাল)
 =============
 
-rumal (রুমাল) is a tiny header only single file HTML/CSS generator C++ library
+**rumal** (রুমাল) is a tiny header only single file HTML/CSS generator C++ library.
 
 |BSD license| |Pipeline Status| |Codacy Badge| |Total Alerts| |Language grade: C/C++|
 
@@ -21,8 +21,14 @@ rumal (রুমাল) is a tiny header only single file HTML/CSS generator C++
     :target: https://lgtm.com/projects/g/neel/rumal/context:cpp
 
 
-Example
--------
+----
+
+    Composing HTML/CSS fragments do not involve any heap memory allocation. Both HTML and CSS blocks can be nested. 
+    An HTML block refers to an HTML tag whereas a CSS block refers to a CSS declarations block. Nesting a CSS block
+    inside another results into nested CSS declaration.
+
+Basic Example
+--------------
 
 .. code-block:: c++
 
@@ -44,4 +50,41 @@ Example
                         css::prop("display", "block"), 
                     ) << std::endl;
         return 0;
+    }
+
+Nested CSS
+-----------
+
+.. code-block:: c++
+
+    select(".main", 
+                    prop("display", "block") 
+                    / prop("position", "relative"), 
+                    select(".heading", 
+                                    prop("display", "block") 
+                                    / prop("position", "relative")
+                            )
+            ) 
+    / select(".container", 
+                        prop("display", "block") 
+                    / prop("position", "relative")
+            );
+
+The above example produces the following CSS.
+
+.. code-block:: css
+
+    .container{
+        position: relative; 
+        display: block;
+    }
+
+    .main{
+        position: relative;
+        display: block;
+    }
+
+    .main > .heading{
+        position: relative;
+        display: block;
     }
