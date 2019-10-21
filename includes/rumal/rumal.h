@@ -27,7 +27,7 @@
 #ifndef RUMAL_H
 #define RUMAL_H
 
-#include <string>
+#include <vector>
 #include <boost/format.hpp>
 #include <boost/hana/tuple.hpp>
 #include <boost/hana/for_each.hpp>
@@ -50,7 +50,7 @@ namespace rumal{
 /**
  * @brief generic key value pair
  * @details
- * Usage: Generic key value pairs used for html attributes as well as for CSS properties, <tt>key</tt> is always `std::string`
+ * Usage: Generic key value pairs used for html attributes as well as for CSS properties, <tt>key</tt> is always string literal
  * @tparam P presentation trait
  * @tparam T type of the value
  */
@@ -58,10 +58,10 @@ template <typename P, typename T>
 struct attribute{
     typedef T value_type;
    
-    std::string _key;
+    const char* _key;
     value_type _value;
    
-    attribute(const std::string& key, value_type value): _key(key), _value(value){}
+    attribute(const char* key, value_type value): _key(key), _value(value){}
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
         P::write(stream, _key, _value);
@@ -154,7 +154,7 @@ namespace html{
  */
 struct html_attribute_trait{
     template <typename StreamT, typename T>
-    static StreamT& write(StreamT& stream, const std::string& key, T value){
+    static StreamT& write(StreamT& stream, const char* key, T value){
         stream << boost::format("%1%='%2%'") % key % value;
         return stream;
     }
@@ -168,13 +168,13 @@ struct html_attribute_trait{
  * @tparam T value type
  */   
 template <typename T>
-attribute<html_attribute_trait, T> attr(const std::string& key, T value){
+attribute<html_attribute_trait, T> attr(const char* key, T value){
     return attribute<html_attribute_trait, T>(key, value);
 }
 
 struct keyed_attr{
-    std::string _key;
-    keyed_attr(const std::string& key): _key(key){}
+    const char* _key;
+    keyed_attr(const char* key): _key(key){}
    
     template <typename T>
     attribute<html_attribute_trait, T> operator()(T value) const{
@@ -231,7 +231,7 @@ struct stripped_parameters{
     
     stripped_parameters(T... children): _children(children...){}
     template <typename StreamT>
-    StreamT& write(StreamT& stream, const std::string& name, int indent = 0) const{
+    StreamT& write(StreamT& stream, const char* name, int indent = 0) const{
         for(int i = 0; i < indent; ++i){
             stream << "\t";
         }
@@ -257,7 +257,7 @@ struct stripped_parameters<folded_attribute<U, V>, T...>{
     
     stripped_parameters(const arguments_type& args, T... children): _arguments(args), _children(children...){}
     template <typename StreamT>
-    StreamT& write(StreamT& stream, const std::string& name, int indent = 0) const{
+    StreamT& write(StreamT& stream, const char* name, int indent = 0) const{
         for(int i = 0; i < indent; ++i){
             stream << "\t";
         }
@@ -286,9 +286,9 @@ template <typename... T>
 struct html_tag: stripped_parameters<T...>{
     typedef stripped_parameters<T...> base_type;
     
-    std::string _name;
+    const char* _name;
 
-    html_tag(const std::string& name, const T&... params): _name(name), base_type(params...){}
+    html_tag(const char* name, const T&... params): _name(name), base_type(params...){}
     template <typename StreamT>
     StreamT& write(StreamT& stream, int indent = 0) const{
         base_type::write(stream, _name, indent);
@@ -309,12 +309,12 @@ struct writer<StreamT, html_tag<T...>>{
 }
 
 template <typename U, typename V, typename... T>
-auto tag(const std::string& name, const folded_attribute<U, V>& args, T... elems){
+auto tag(const char* name, const folded_attribute<U, V>& args, T... elems){
     return html_tag<folded_attribute<U, V>, T...>(name, args, elems...);
 }
 
 template <typename... T>
-auto tag(const std::string& name, const T&... elems){
+auto tag(const char* name, const T&... elems){
     return html_tag<T...>(name, elems...);
 }
 
@@ -340,7 +340,7 @@ namespace css{
     
 struct css_attribute_trait{
     template <typename StreamT, typename T>
-    static StreamT& write(StreamT& stream, const std::string& key, T value){
+    static StreamT& write(StreamT& stream, const char* key, T value){
         stream << boost::format("%1%: %2%") % key % value;
         return stream;
     }
@@ -359,7 +359,7 @@ struct css_tag_trait{
 };
 
 template <typename T>
-attribute<css_attribute_trait, T> prop(const std::string& key, T value){
+attribute<css_attribute_trait, T> prop(const char* key, T value){
     return attribute<css_attribute_trait, T>(key, value);
 }
 
@@ -407,11 +407,16 @@ template <typename... T>
 struct css_selector: html::html_tag<T...>{
     typedef html::html_tag<T...> base_type;
     
-    css_selector(const std::string& name, const T&... args): base_type(name, args...){}    
+    css_selector(const char* name, const T&... args): base_type(name, args...){}    
     template <typename StreamT>
-    StreamT& write(StreamT& stream, std::vector<std::string>& ancestors) const{
+    StreamT& write(StreamT& stream, std::vector<const char*>& ancestors) const{
         ancestors.push_back(base_type::_name);
-        stream << boost::algorithm::join(ancestors, " > ") << "{" << std::endl << "\t";
+        stream << *ancestors.begin();
+        std::for_each(ancestors.begin()+1, ancestors.end(), [&stream](const char* ancestor){
+            stream << " > " << ancestor;
+        });
+        stream << "{" << std::endl << "\t";
+        // stream << boost::algorithm::join(ancestors, " > ") << "{" << std::endl << "\t";
         folded_attribute_writer<css_tag_trait, typename base_type::arguments_type>::write(stream, base_type::_arguments);
         stream << std::endl << "}" << std::endl;
         boost::hana::for_each(base_type::_children, [&](const auto& elem) {
@@ -436,13 +441,13 @@ auto operator/(const folded_tag<U, V>& left, const css_selector<T...>& right){
 }
 
 template <typename U, typename V, typename... T>
-auto select(const std::string& name, const folded_attribute<U, V>& args, const T&... elems){
+auto select(const char* name, const folded_attribute<U, V>& args, const T&... elems){
     return css_selector<folded_attribute<U, V>, T...>(name, args, elems...);
 }
 
 template <typename... T>
 std::ostream& operator<<(std::ostream& stream, const css_selector<T...>& elem){
-    std::vector<std::string> ancestors;
+    std::vector<const char*> ancestors;
     elem.write(stream, ancestors);
     return stream;
 }
