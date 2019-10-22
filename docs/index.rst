@@ -60,18 +60,19 @@ Nested CSS
 
 .. code-block:: c++
 
+    using namespace rumal::css;
+    
     select(".main", 
-                    prop("display", "block") 
-                    / prop("position", "relative"), 
-                    select(".heading", 
-                                    prop("display", "block") 
-                                    / prop("position", "relative")
-                            )
-            ) 
-    / select(".container", 
-                        prop("display", "block") 
-                    / prop("position", "relative")
-            );
+          prop("display", "block") 
+        / prop("position", "relative"), 
+        select(".heading", 
+              prop("display", "block") 
+            / prop("position", "relative")
+        )
+    ) / select(".container", 
+          prop("display", "block") 
+        / prop("position", "relative")
+    );
 
 The above example produces the following CSS.
 
