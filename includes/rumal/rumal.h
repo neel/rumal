@@ -260,12 +260,7 @@ struct stripped_parameters<char[N]>{
         for(int i = 0; i < indent; ++i){
             stream << "\t";
         }
-        stream << "<" << name << ">" << std::endl;
-        stream << _children  << std::endl;
-        for(int i = 0; i < indent; ++i){
-            stream << "\t";
-        }
-        stream << "</" << name << ">" << std::endl;
+        stream << "<" << name << ">" << _children << "</" << name << ">" << std::endl;
         return stream;
     }
 };
@@ -314,12 +309,7 @@ struct stripped_parameters<folded_attribute<U, V>, char[N]>{
         }
         stream << "<" << name << " ";
         folded_attribute_writer<html_tag_trait, arguments_type>::write(stream, _arguments);
-        stream << ">"  << std::endl;
-        stream << _children << std::endl;
-        for(int i = 0; i < indent; ++i){
-            stream << "\t";
-        }
-        stream << "</" << name << ">" << std::endl;
+        stream << ">" << _children << "</" << name << ">" << std::endl;
         return stream;
     }
 };
@@ -465,7 +455,6 @@ struct css_selector: html::html_tag<T...>{
             stream << " > " << ancestor;
         });
         stream << "{" << std::endl << "\t";
-        // stream << boost::algorithm::join(ancestors, " > ") << "{" << std::endl << "\t";
         folded_attribute_writer<css_tag_trait, typename base_type::arguments_type>::write(stream, base_type::_arguments);
         stream << std::endl << "}" << std::endl;
         boost::hana::for_each(base_type::_children, [&](const auto& elem) {
