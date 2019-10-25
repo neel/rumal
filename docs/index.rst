@@ -3,7 +3,7 @@ rumal (রুমাল)
 
 **rumal** (রুমাল) is a tiny header only single file HTML/CSS generator C++ library.
 
-|BSD license| |Pipeline Status| |Codacy Badge| |Total Alerts| |Language grade: C/C++|
+|BSD license| |Pipeline Status| |ReadTheDocs| |Codacy Badge| |Total Alerts| |Language grade: C/C++|
 
 .. |BSD license| image:: https://img.shields.io/badge/License-BSD%202--Clause-orange.svg
     :target: https://opensource.org/licenses/BSD-2-Clause
@@ -19,6 +19,9 @@ rumal (রুমাল)
 
 .. |Language grade: C/C++| image:: https://img.shields.io/lgtm/grade/cpp/g/neel/rumal.svg?logo=lgtm&logoWidth=18
     :target: https://lgtm.com/projects/g/neel/rumal/context:cpp
+    
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/rumal/badge/?version=latest
+    :target: https://rumal.readthedocs.io/en/latest/?badge=latest
 
 
 ----
@@ -57,18 +60,19 @@ Nested CSS
 
 .. code-block:: c++
 
+    using namespace rumal::css;
+    
     select(".main", 
-                    prop("display", "block") 
-                    / prop("position", "relative"), 
-                    select(".heading", 
-                                    prop("display", "block") 
-                                    / prop("position", "relative")
-                            )
-            ) 
-    / select(".container", 
-                        prop("display", "block") 
-                    / prop("position", "relative")
-            );
+          prop("display", "block") 
+        / prop("position", "relative"), 
+        select(".heading", 
+              prop("display", "block") 
+            / prop("position", "relative")
+        )
+    ) / select(".container", 
+          prop("display", "block") 
+        / prop("position", "relative")
+    );
 
 The above example produces the following CSS.
 
@@ -88,3 +92,63 @@ The above example produces the following CSS.
         position: relative;
         display: block;
     }
+
+HTML Tag
+---------
+
+To declare HTML tags use the macro `DEFINE_HTML_TAG` 
+
+.. code-block:: c++
+
+    namespace rumal{
+        namespace html{
+            namespace tags{
+                DEFINE_HTML_TAG(div) 
+            }
+        }
+    }
+
+The above example will declare a tag named `div`. The macro results into two function overloads named `div`
+
+.. code-blocks:: c++
+
+    template <typename Args, typename... T>                     
+    auto div(const Args& args, const T&... elems){             
+        return tag<Args, T...>("div", args, elems...);          
+    }                                                           
+    template <typename... T>                                    
+    auto div(const T&... elems){                               
+        return tag<void, T...>("div", elems...);                
+    }
+
+HTML Attributes
+----------------
+
+HTML attributes are declared through two macros `DEFINE_HTML_ATTRIBUTE` and `DEFINE_LABELED_HTML_ATTRIBUTE`
+
+.. code-block:: c++
+
+    namespace rumal{
+        namespace html{
+            namespace attrs{
+                DEFINE_HTML_ATTRIBUTE(id)
+                DEFINE_LABELED_HTML_ATTRIBUTE(klass, "class")
+            }
+        }
+    }
+
+The above results into the following functions
+
+.. code-blocks:: c++
+
+    template <typename T> 
+    auto id(T value){
+        return rumal::html::attr("id", value);
+    }
+    template <typename T> 
+    auto klass(T value){
+        return rumal::html::attr("class", value);
+    }
+
+Use `DEFINE_HTML_ATTRIBUTE` to define attributes that do not conflict with C++ keywords or existing functions. 
+Use `DEFINE_LABELED_HTML_ATTRIBUTE` when there is a conflict (e.g. class). Or use `html::attr("attribute_name", value);` directly
