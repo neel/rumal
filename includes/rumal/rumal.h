@@ -229,7 +229,7 @@ struct stripped_parameters{
     
     children_type _children;
     
-    stripped_parameters(T... children): _children(children...){}
+    stripped_parameters(const T&... children): _children(children...){}
     template <typename StreamT>
     StreamT& write(StreamT& stream, const char* name, int indent = 0) const{
         for(int i = 0; i < indent; ++i){
@@ -247,6 +247,29 @@ struct stripped_parameters{
     }
 };
 
+template <int N>
+struct stripped_parameters<char[N]>{
+    typedef void arguments_type;
+    typedef const char* children_type;
+    
+    children_type _children;
+    
+    stripped_parameters(children_type children): _children(children){}
+    template <typename StreamT>
+    StreamT& write(StreamT& stream, const char* name, int indent = 0) const{
+        for(int i = 0; i < indent; ++i){
+            stream << "\t";
+        }
+        stream << "<" << name << ">" << std::endl;
+        stream << _children  << std::endl;
+        for(int i = 0; i < indent; ++i){
+            stream << "\t";
+        }
+        stream << "</" << name << ">" << std::endl;
+        return stream;
+    }
+};
+
 template <typename U, typename V, typename... T>
 struct stripped_parameters<folded_attribute<U, V>, T...>{
     typedef folded_attribute<U, V>   arguments_type;
@@ -255,7 +278,7 @@ struct stripped_parameters<folded_attribute<U, V>, T...>{
     arguments_type _arguments;
     children_type  _children;
     
-    stripped_parameters(const arguments_type& args, T... children): _arguments(args), _children(children...){}
+    stripped_parameters(const arguments_type& args, const T&... children): _arguments(args), _children(children...){}
     template <typename StreamT>
     StreamT& write(StreamT& stream, const char* name, int indent = 0) const{
         for(int i = 0; i < indent; ++i){
@@ -275,11 +298,37 @@ struct stripped_parameters<folded_attribute<U, V>, T...>{
     }
 };
 
+template <typename U, typename V, int N>
+struct stripped_parameters<folded_attribute<U, V>, char[N]>{
+    typedef folded_attribute<U, V>   arguments_type;
+    typedef const char* children_type;
+    
+    arguments_type _arguments;
+    children_type  _children;
+    
+    stripped_parameters(const arguments_type& args, const char* children): _arguments(args), _children(children){}
+    template <typename StreamT>
+    StreamT& write(StreamT& stream, const char* name, int indent = 0) const{
+        for(int i = 0; i < indent; ++i){
+            stream << "\t";
+        }
+        stream << "<" << name << " ";
+        folded_attribute_writer<html_tag_trait, arguments_type>::write(stream, _arguments);
+        stream << ">"  << std::endl;
+        stream << _children << std::endl;
+        for(int i = 0; i < indent; ++i){
+            stream << "\t";
+        }
+        stream << "</" << name << ">" << std::endl;
+        return stream;
+    }
+};
+
 template <typename P, typename U, typename... T>
 struct stripped_parameters<attribute<P, U>, T...>: stripped_parameters<folded_attribute<attribute<P, U>, void>, T...>{
     typedef stripped_parameters<folded_attribute<attribute<P, U>, void>, T...> base_type;
 
-    stripped_parameters(attribute<P, U> arg, T... children): base_type(typename base_type::arguments_type(arg), children...){}
+    stripped_parameters(attribute<P, U> arg, const T&... children): base_type(typename base_type::arguments_type(arg), children...){}
 };
 
 template <typename... T>
