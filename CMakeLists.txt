@@ -8,9 +8,12 @@ SET(CMAKE_CXX_FLAGS "-ftemplate-backtrace-limit=0 ${CMAKE_CXX_FLAGS}")
 
 find_package(Boost REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+SET(RUMAL_INCLUDE_DIRS
+  ${CMAKE_CURRENT_SOURCE_DIR}/includes
+)
 
 add_library(rumal INTERFACE)
-target_include_directories(rumal INTERFACE includes/)
+target_include_directories(rumal INTERFACE ${RUMAL_INCLUDE_DIRS})
 target_link_libraries(rumal INTERFACE Boost::boost)
 
 add_subdirectory(examples/)
