@@ -6,8 +6,8 @@ int main(int argc, char **argv){
     using namespace rumal::html::tags;
     using namespace rumal;
    
-    auto content = div(id(42) / klass("test"),
-                        span(id(42) / width(42.042) / height(42.042) / klass("test"),
+    auto content = div(_id(42) / _class("test"),
+                        span(_id(42) / _width(42.042) / _height(42.042) / _class("test"),
                             42
                         ),
                         span(
@@ -17,17 +17,17 @@ int main(int argc, char **argv){
     std::cout << content << std::endl;
    
     std::cout << span(84) << std::endl;
-    std::cout << span(id(42), 84) << std::endl;
-    std::cout << span(id(42) / klass("test"), 84) << std::endl;
-    std::cout << span(id(42) / width(42.042) / height(42.042) / klass("test"), 84) << std::endl;
+    std::cout << span(_id(42), 84) << std::endl;
+    std::cout << span(_id(42) / _class("test"), 84) << std::endl;
+    std::cout << span(_id(42) / _width(42.042) / _height(42.042) / _class("test"), 84) << std::endl;
 //     std::cout << span() << std::endl;
-    std::cout << span(id(42)) << std::endl;
-    std::cout << span(id(42) / klass("test")) << std::endl;
-    std::cout << span(id(42) / width(42.042) / height(42.042) / klass("test")) << std::endl;
+    std::cout << span(_id(42)) << std::endl;
+    std::cout << span(_id(42) / _class("test")) << std::endl;
+    std::cout << span(_id(42) / _width(42.042) / _height(42.042) / _class("test")) << std::endl;
     
     std::cout << css::select(".heading",
                     css::prop("position", "relative") /
-                    css::prop("display", "block"),
+                    css::props::display("block"),
                     css::select(".content",
                         css::prop("position", "relative") /
                         css::prop("display", "block")
@@ -38,14 +38,7 @@ int main(int argc, char **argv){
                 )/ css::select(".main2",
                                css::prop("position", "relative") /
                                css::prop("display", "block")
-                );
-
-//    std::cout <<
-//            css::select(".a", css::prop("position", "relative") /  css::prop("display", "block"), css::select(".c", css::prop("position", "relative") /  css::prop("display", "block"))) /
-//            css::select(".b", css::prop("position", "relative") /  css::prop("display", "block")) /
-//            css::select(".d", css::prop("position", "relative") /  css::prop("display", "block"))
-//        ;
-//    std::cout << style << std::endl;
+                );              
 
     std::cout << "Hello, world!" << std::endl;
     return 0;

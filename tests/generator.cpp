@@ -25,8 +25,8 @@ BOOST_AUTO_TEST_CASE(html){
     using namespace rumal::html::tags;
     
     check(span(84), "<span>84</span>");
-    check(span(id(42), 84), "<span id='42'>84</span>");
-    check(div(id(42) / klass("test"), 84), "<div class='test' id='42'>84</div>");
+    check(span(_id(42), 84), "<span id='42'>84</span>");
+    check(div(_id(42) / _class("test"), 84), "<div class='test' id='42'>84</div>");
 }
 
 BOOST_AUTO_TEST_CASE(css){

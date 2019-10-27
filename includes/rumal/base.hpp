@@ -28,6 +28,7 @@
 #define RUMAL_BASE_H
 
 #include <vector>
+#include <boost/regex.hpp>
 #include <boost/format.hpp>
 #include <boost/hana/tuple.hpp>
 #include <boost/hana/for_each.hpp>
@@ -456,6 +457,12 @@ std::ostream& operator<<(std::ostream& stream, const css_selector<T...>& elem){
     std::vector<const char*> ancestors;
     elem.write(stream, ancestors);
     return stream;
+}
+
+template <typename V>
+auto prepared(const char* name, V value){
+    std::string escaped = boost::regex_replace(std::string(name), boost::regex("-(\\w)"), "\\U\\1", boost::regex_constants::match_perl);
+    return prop(escaped, value);
 }
     
 }
