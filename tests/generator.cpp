@@ -31,8 +31,9 @@ BOOST_AUTO_TEST_CASE(html){
 
 BOOST_AUTO_TEST_CASE(css){
     using namespace rumal::css;
+    using namespace rumal::css::props;
     
-    auto style = select(".main", prop("display", "block") / prop("position", "relative"), select(".heading", prop("display", "block") / prop("position", "relative"))) / select(".container", prop("display", "block") / prop("position", "relative"));
+    auto style = select(".main", display("block") / position("relative"), select(".heading", display("block") / position("relative"))) / select(".container", display("block") / position("relative"));
     check(style, ".container{position: relative; display: block;}.main{position: relative;display: block;}.main > .heading{position: relative;display: block;}");
 }
 

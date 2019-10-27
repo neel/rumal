@@ -36,21 +36,22 @@ Basic Example
 .. code-block:: c++
 
     #include <iostream>
-    #include <rumal/rumal.h>
-    
+    #include <rumal/rumal.hpp>
+
     int main(int argc, char **argv){
         using namespace rumal::html::attrs;
         using namespace rumal::html::tags;
-        using namespace rumal;
-       
-        std::cout << div(id(42) / klass("test"),
-                        span(id(43) / klass("test"), "Hello"),
+        using namespace rumal::css;
+        using namespace rumal::css::props;
+    
+        std::cout << div(_id(42) / _class("test"),
+                        span(_id(43) / _class("test"), "Hello"),
                         span("World")
                     ) << std::endl;
         
-        std::cout << css::select(".heading", 
-                        css::prop("position", "relative") / 
-                        css::prop("display", "block"), 
+        std::cout << select(".heading", 
+                        position("relative") / 
+                        display("block"), 
                     ) << std::endl;
         return 0;
     }
@@ -61,17 +62,18 @@ Nested CSS
 .. code-block:: c++
 
     using namespace rumal::css;
-    
+    using namespace rumal::css::props;
+
     select(".main", 
-          prop("display", "block") 
-        / prop("position", "relative"), 
+        display("block") 
+        / position("relative"), 
         select(".heading", 
-              prop("display", "block") 
-            / prop("position", "relative")
+            display("block") 
+            / position("relative")
         )
     ) / select(".container", 
-          prop("display", "block") 
-        / prop("position", "relative")
+        display("block") 
+        / position("relative")
     );
 
 The above example produces the following CSS.
@@ -142,7 +144,7 @@ The above results into the following functions
 .. code-blocks:: c++
 
     template <typename T> 
-    auto id(T value){
+    auto _id(T value){
         return rumal::html::attr("id", value);
     }
     template <typename T> 

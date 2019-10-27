@@ -15,21 +15,22 @@ inside another results into nested CSS declaration.
 
 ```cpp
 #include <iostream>
-#include <rumal/rumal.h>
+#include <rumal/rumal.hpp>
 
 int main(int argc, char **argv){
     using namespace rumal::html::attrs;
     using namespace rumal::html::tags;
-    using namespace rumal;
+    using namespace rumal::css;
+    using namespace rumal::css::props;
    
-    std::cout << div(id(42) / klass("test"),
-                    span(id(43) / klass("test"), "Hello"),
+    std::cout << div(_id(42) / _class("test"),
+                    span(_id(43) / _class("test"), "Hello"),
                     span("World")
                 ) << std::endl;
     
-    std::cout << css::select(".heading", 
-                    css::prop("position", "relative") / 
-                    css::prop("display", "block"), 
+    std::cout << select(".heading", 
+                    position("relative") / 
+                    display("block"), 
                 ) << std::endl;
     return 0;
 }
@@ -39,17 +40,18 @@ int main(int argc, char **argv){
 
 ```cpp
 using namespace rumal::css;
+using namespace rumal::css::props;
 
 select(".main", 
-      prop("display", "block") 
-    / prop("position", "relative"), 
+      display("block") 
+    / position("relative"), 
     select(".heading", 
-          prop("display", "block") 
-        / prop("position", "relative")
+          display("block") 
+        / position("relative")
     )
 ) / select(".container", 
-      prop("display", "block") 
-    / prop("position", "relative")
+      display("block") 
+    / position("relative")
 );
 
 ```
