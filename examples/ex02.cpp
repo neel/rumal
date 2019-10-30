@@ -63,9 +63,11 @@ struct m0_: rumal::js::callable_<m0_, object1_>{
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     fn_ fn;
+    std::cout << fn << std::endl;
     std::cout << fn(1, 2.5) << std::endl;
     
     m0_ m0;
+    std::cout << m0 << std::endl;
     std::cout << m0(1, 4.5) << std::endl;
     std::cout << m0(1, 4.5).m1(4, 2.7) << std::endl;
     std::cout << m0(1, 4.5).m3(4, 2.7) << std::endl;

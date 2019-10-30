@@ -188,44 +188,116 @@ struct dot{
     }
 };
 
-template <typename ParentT, typename... Args>
-struct call_packet{
-    typedef ParentT parent_type;
-    typedef boost::hana::tuple<trans_t<Args>...> tuple_type;
-    typedef call_packet<ParentT, Args...> self_type;
+template <typename PacketT>
+struct expression_{
+    typedef PacketT packet_type;
     
-    const char* _name;
-    parent_type _parent;
-    tuple_type  _args;
+    packet_type _packet;
     
-    call_packet(const char* name, const parent_type& parent, const Args&... args): _name(name), _parent(parent), _args(args...){}
-    call_packet(const self_type& other): _name(other._name), _parent(other._parent), _args(other._args){}
-    self_type& operator=(const self_type& other){
-        _name   = other._name;
-        _parent = other._parent;
-        _args   = other._args;
-        return *this;
-    }
+    explicit expression_(const packet_type& pkt): _packet(pkt){}
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
-        stream << _parent;
-        dot<parent_type>::write(stream);
-        stream << _name << "(";
-        unsigned short int counter = 0;
-        boost::hana::for_each(_args, [&stream, &counter](const auto& x){
-            if(counter++){
-                stream << ",";
-            }
-            stream << value_wrapper_(x);
-        });
-        stream << ")";
+        stream << _packet;
         return stream;
     }
 };
-template <typename StreamT, typename... T>
-StreamT& operator<<(StreamT& stream, const call_packet<T...>& packet){
-    packet.write(stream);
-    return stream;
+
+namespace packets{
+    template <typename ParentT, typename... Args>
+    struct call{
+        typedef ParentT parent_type;
+        typedef boost::hana::tuple<trans_t<Args>...> tuple_type;
+        typedef call<ParentT, Args...> self_type;
+        
+        const char* _name;
+        parent_type _parent;
+        tuple_type  _args;
+        
+        call(const char* name, const parent_type& parent, const Args&... args): _name(name), _parent(parent), _args(args...){}
+        call(const self_type& other): _name(other._name), _parent(other._parent), _args(other._args){}
+        self_type& operator=(const self_type& other){
+            _name   = other._name;
+            _parent = other._parent;
+            _args   = other._args;
+            return *this;
+        }
+        template <typename StreamT>
+        StreamT& write(StreamT& stream) const{
+            stream << _parent;
+            dot<parent_type>::write(stream);
+            stream << _name << "(";
+            unsigned short int counter = 0;
+            boost::hana::for_each(_args, [&stream, &counter](const auto& x){
+                if(counter++){
+                    stream << ",";
+                }
+                stream << value_wrapper_(x);
+            });
+            stream << ")";
+            return stream;
+        }
+    };
+    template <typename StreamT, typename... T>
+    StreamT& operator<<(StreamT& stream, const call<T...>& packet){
+        packet.write(stream);
+        return stream;
+    }
+    template <typename ParentT>
+    struct access{
+        typedef ParentT parent_type;
+        typedef access<ParentT> self_type;
+        
+        parent_type _parent;
+        const char* _name;
+        
+        access(const parent_type& parent, const char* name):_parent(parent), _name(name){}
+        access(const self_type& other): _parent(other._parent), _name(other._name){}
+        self_type& operator=(const self_type& other){
+            _parent = other._parent;
+            _name   = other._name;
+            return *this;
+        }
+        template <typename StreamT>
+        StreamT& write(StreamT& stream) const{
+            stream << _parent;
+            dot<parent_type>::write(stream);
+            stream << _name ;
+            return stream;
+        }
+    };
+    template <typename StreamT, typename ParentT>
+    StreamT& operator<<(StreamT& stream, const access<ParentT>& pkt){
+        pkt.write(stream);
+        return stream;
+    }
+    template <typename ParentT, typename T>
+    struct index{
+        typedef ParentT parent_type;
+        typedef trans_t<T> value_type;
+        typedef index<ParentT, T> self_type;
+        
+        parent_type _parent;
+        value_type  _value;
+        
+        index(const parent_type& parent, const value_type& value):_parent(parent), _value(value){}
+        index(const self_type& other): _parent(other._parent), _value(other._value){}
+        self_type& operator=(const self_type& other){
+            _parent = other._parent;
+            _value   = other._value;
+            return *this;
+        }
+        template <typename StreamT>
+        StreamT& write(StreamT& stream) const{
+            stream << _parent;
+            stream << "[" << value_wrapper_(_value) << "]";
+            return stream;
+        }
+    };
+    template <typename StreamT, typename ParentT, typename T>
+    StreamT& operator<<(StreamT& stream, const index<ParentT, T>& idx_pkt){
+        idx_pkt.write(stream);
+        return stream;
+    }
 }
 
 struct none_type{};
@@ -248,18 +320,12 @@ struct meta_void{
 };
 
 template <typename PacketT, typename FollowT=void>
-struct returned_: public FollowT{
+struct returned_: public FollowT, public expression_<PacketT>{
     typedef PacketT packet_type;
     typedef FollowT followed_type;
-    
-    packet_type _packet;
-    
-    explicit returned_(const packet_type& packet): FollowT(packet), _packet(packet){}
-    template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << _packet;
-        return stream;
-    }
+    typedef expression_<PacketT> expression_type;
+     
+    explicit returned_(const packet_type& packet): FollowT(packet), expression_type(packet){}
 };
 template <typename StreamT, typename PacketT, typename FollowT>
 StreamT& operator<<(StreamT& stream, const returned_<PacketT, FollowT>& r){
@@ -267,17 +333,11 @@ StreamT& operator<<(StreamT& stream, const returned_<PacketT, FollowT>& r){
     return stream;
 }
 template <typename PacketT>
-struct returned_<PacketT, void>{
+struct returned_<PacketT, void>: public expression_<PacketT>{
     typedef PacketT packet_type;
+    typedef expression_<PacketT> expression_type;
     
-    packet_type _packet;
-    
-    explicit returned_(const packet_type& packet): _packet(packet){}
-    template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << _packet;
-        return stream;
-    }
+    explicit returned_(const packet_type& packet): expression_type(packet){}
 };
 
 /**
@@ -306,9 +366,9 @@ struct callable_{
     explicit callable_(const char* name): _name(name){}
     const char* name() const {return _name;}
     template <typename... Args>
-    returned_<call_packet<none_type, Args...>, follow<call_packet<none_type, Args...>>> operator()(const Args&... args){  
-        call_packet<none_type, Args...> pckt(_name, none_type(), args...);
-        return returned_<call_packet<none_type, Args...>, follow<call_packet<none_type, Args...>>>(pckt);
+    returned_<packets::call<none_type, Args...>, follow<packets::call<none_type, Args...>>> operator()(const Args&... args){  
+        packets::call<none_type, Args...> pckt(_name, none_type(), args...);
+        return returned_<packets::call<none_type, Args...>, follow<packets::call<none_type, Args...>>>(pckt);
     }
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
@@ -328,9 +388,9 @@ struct callable_<DerivedT, meta_void>{
     explicit callable_(const char* name): _name(name){}
     const char* name() const {return _name;}
     template <typename... Args>
-    returned_<call_packet<none_type, Args...>, void> operator()(const Args&... args){  
-        call_packet<none_type, Args...> pckt(_name, none_type(), args...);
-        return returned_<call_packet<none_type, Args...>, void>(pckt);
+    returned_<packets::call<none_type, Args...>, void> operator()(const Args&... args){  
+        packets::call<none_type, Args...> pckt(_name, none_type(), args...);
+        return returned_<packets::call<none_type, Args...>, void>(pckt);
     }
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
@@ -345,85 +405,48 @@ StreamT& operator<<(StreamT& stream, const callable_<DerivedT, RetT>& call){
     return stream;
 }
 
-
 template<typename T>
 struct void_ {typedef void type;};
 
 template <typename CallableT, typename PacketT, typename = void>
-struct method_{
+struct method_: public expression_<packets::access<PacketT>>{
     typedef CallableT callable_type;
     typedef PacketT   packet_type;
+    typedef expression_<packets::access<PacketT>> expression_type;
     
     callable_type _callable;
     PacketT _packet;
     
-    explicit method_(const packet_type& pkt): _packet(pkt){}
+    explicit method_(const packet_type& pkt): expression_type(packets::access<PacketT>(pkt, _callable.name())), _packet(pkt){}
     template <typename... Args>
-    returned_<call_packet<PacketT, Args...>, typename CallableT::template follow<call_packet<PacketT, Args...>> > operator()(const Args&... args){
-        call_packet<PacketT, Args...> pckt(_callable.name(), _packet, args...);
-        return returned_<call_packet<PacketT, Args...>, typename CallableT::template follow<call_packet<PacketT, Args...>> >(pckt);
-    }
-    template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << _callable;
-        return stream;
+    returned_<packets::call<PacketT, Args...>, typename CallableT::template follow<packets::call<PacketT, Args...>> > operator()(const Args&... args){
+        packets::call<PacketT, Args...> pckt(_callable.name(), _packet, args...);
+        return returned_<packets::call<PacketT, Args...>, typename CallableT::template follow<packets::call<PacketT, Args...>> >(pckt);
     }
 };
 
+/**
+ * \brief void returning function
+ */
 template <typename CallableT, typename PacketT>
-struct method_<CallableT, PacketT, typename void_<typename CallableT::leaf_type>::type>{
+struct method_<CallableT, PacketT, typename void_<typename CallableT::leaf_type>::type>: public expression_<packets::access<PacketT>>{
     typedef CallableT callable_type;
     typedef PacketT   packet_type;
+    typedef expression_<packets::access<PacketT>> expression_type;
     
     callable_type _callable;
     PacketT _packet;
     
-    explicit method_(const packet_type& pkt): _packet(pkt){}
+    explicit method_(const packet_type& pkt): expression_type(packets::access<PacketT>(pkt, _callable.name())), _packet(pkt){}
     template <typename... Args>
-    returned_<call_packet<PacketT, Args...>, void> operator()(const Args&... args){
-        call_packet<PacketT, Args...> pckt(_callable.name(), _packet, args...);
-        return returned_<call_packet<PacketT, Args...>, void>(pckt);
-    }
-    template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << _packet;
-        dot<packet_type>::write(stream);
-        stream << _callable;
-        return stream;
+    returned_<packets::call<PacketT, Args...>, void> operator()(const Args&... args){
+        packets::call<PacketT, Args...> pckt(_callable.name(), _packet, args...);
+        return returned_<packets::call<PacketT, Args...>, void>(pckt);
     }
 };
 template <typename StreamT, typename CallableT, typename PacketT>
 StreamT& operator<<(StreamT& stream, const method_<CallableT, PacketT>& pkt){
     pkt.write(stream);
-    return stream;
-}
-
-template <typename ParentT, typename T>
-struct index_packet{
-    typedef ParentT parent_type;
-    typedef trans_t<T> value_type;
-    typedef index_packet<ParentT, T> self_type;
-    
-    parent_type _parent;
-    value_type  _value;
-    
-    index_packet(const parent_type& parent, const value_type& value):_parent(parent), _value(value){}
-    index_packet(const self_type& other): _parent(other._parent), _value(other._value){}
-    self_type& operator=(const self_type& other){
-        _parent = other._parent;
-        _value   = other._value;
-        return *this;
-    }
-    template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << _parent;
-        stream << "[" << value_wrapper_(_value) << "]";
-        return stream;
-    }
-};
-template <typename StreamT, typename ParentT, typename T>
-StreamT& operator<<(StreamT& stream, const index_packet<ParentT, T>& idx_pkt){
-    idx_pkt.write(stream);
     return stream;
 }
 
@@ -434,55 +457,21 @@ struct iterable_{
     
     explicit iterable_(const packet_type& pkt): _packet(pkt){}
     template <typename T>
-    returned_<index_packet<packet_type, T>, FollowT<index_packet<packet_type, T>> > operator[](const T& value){
-        index_packet<packet_type, T> pckt(_packet, value);
-        return returned_<index_packet<packet_type, T>, FollowT<index_packet<packet_type, T>> >(pckt);
+    returned_<packets::index<packet_type, T>, FollowT<packets::index<packet_type, T>> > operator[](const T& value){
+        packets::index<packet_type, T> pckt(_packet, value);
+        return returned_<packets::index<packet_type, T>, FollowT<packets::index<packet_type, T>> >(pckt);
     }
 };
-
-template <typename ParentT>
-struct access_packet{
-    typedef ParentT parent_type;
-    typedef access_packet<ParentT> self_type;
-    
-    parent_type _parent;
-    const char* _name;
-    
-    access_packet(const parent_type& parent, const char* name):_parent(parent), _name(name){}
-    access_packet(const self_type& other): _parent(other._parent), _name(other._name){}
-    self_type& operator=(const self_type& other){
-        _parent = other._parent;
-        _name   = other._name;
-        return *this;
-    }
-    template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << _parent;
-        dot<parent_type>::write(stream);
-        stream << _name ;
-        return stream;
-    }
-};
-template <typename StreamT, typename ParentT>
-StreamT& operator<<(StreamT& stream, const access_packet<ParentT>& pkt){
-    pkt.write(stream);
-    return stream;
-}
 
 template <template<typename> class FollowT, typename PacketT>
-struct property_: FollowT<access_packet<PacketT>>{
-    typedef access_packet<PacketT> packet_type;
-    typedef FollowT<access_packet<PacketT>> follow_type;
+struct property_: public FollowT<packets::access<PacketT>>, public expression_<packets::access<PacketT>>{
+    typedef packets::access<PacketT> packet_type;
+    typedef FollowT<packets::access<PacketT>> follow_type;
+    typedef expression_<packets::access<PacketT>> expression_type;
     
     const char* _name;
-    packet_type _packet;
     
-    property_(const char* name, const PacketT& pkt): follow_type(packet_type(pkt, name)), _name(name), _packet(packet_type(pkt, name)){}
-    template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << _packet;
-        return stream;
-    }
+    property_(const char* name, const PacketT& pkt): follow_type(packet_type(pkt, name)), expression_type(packet_type(pkt, name)), _name(name){}
 };
 template <typename StreamT, template<typename> class FollowT, typename PacketT>
 StreamT& operator<<(StreamT& stream, const property_<FollowT, PacketT>& prop){

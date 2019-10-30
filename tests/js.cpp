@@ -83,6 +83,9 @@ BOOST_AUTO_TEST_CASE(chain){
     fn_ fn;
     m0_ m0;
     
+    check(fn, "fn");
+    check(m0, "m0");
+    check(fn(1, 2.5), "fn(1, 2.5)");
     check(m0(1, 4.5), "m0(1, 4.5)");
     check(m0(1, 4.5).m1(4, 2.7), "m0(1, 4.5).m1(4, 2.7)");
     check(m0(1, 4.5).m3(4, 2.7), "m0(1, 4.5).m3(4, 2.7)");
