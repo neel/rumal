@@ -145,7 +145,7 @@ struct value_wrapper_<const char*>{
     
     value_type _val;
     
-    value_wrapper_(const value_type& val): _val(val){}    
+    explicit value_wrapper_(const value_type& val): _val(val){}    
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
         stream << "'" << _val << "'";
