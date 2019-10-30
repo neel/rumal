@@ -1,0 +1,187 @@
+m0(1, 4.5)
+-----------
+rumal::js::returned_<
+    rumal::js::packet<rumal::js::none_type, int, double>, 
+    object1_<
+        rumal::js::packet<rumal::js::none_type, int, double> 
+    > 
+>
+
+m0(1, 4.5).m1
+--------------
+rumal::js::method_<
+    m1_, 
+    rumal::js::packet<rumal::js::none_type, int, double>, 
+    void
+>
+
+m0(1, 4.5).m1(42.65)
+---------------------
+rumal::js::returned_<
+    rumal::js::packet<
+        rumal::js::packet<rumal::js::none_type, int, double>, 
+        double
+    >, 
+    void
+>
+
+
+m0(1, 4.5).m3
+-------------
+rumal::js::method_<
+    m3_, 
+    rumal::js::packet<rumal::js::none_type, int, double>, 
+    void
+>
+
+
+m0(1, 4.5).m3(42.65)
+---------------------
+rumal::js::returned_<
+    rumal::js::packet<
+        rumal::js::packet<rumal::js::none_type, int, double>, 
+        double
+    >, 
+    object2_<
+        rumal::js::packet<
+            rumal::js::packet<rumal::js::none_type, int, double>, 
+            double
+        > 
+    > 
+>
+
+m0(1, 4.5).m3(22).m4
+----------------------
+rumal::js::method_<
+    m4_, 
+    rumal::js::packet<
+        rumal::js::packet<rumal::js::none_type, int, double>, 
+        int
+    >, 
+    void
+>
+
+m0(1, 4.5).m3(22).m4(22.5)
+--------------------------
+rumal::js::returned_<
+    rumal::js::packet<
+        rumal::js::packet<
+            rumal::js::packet<rumal::js::none_type, int, double>, 
+            int
+        >, 
+        double
+    >, 
+    void
+>
+
+m0(1, 4.5).m3(4, 2.7, "hi")["42"]
+----------------------------------
+rumal::js::returned_<
+    rumal::js::index_packet<
+        rumal::js::call_packet<
+            rumal::js::call_packet<rumal::js::none_type, int, double>, 
+            int, 
+            double, 
+            char [3]
+        >, 
+        char [3]
+    >, 
+    object3_<
+        rumal::js::index_packet<
+            rumal::js::call_packet<
+                rumal::js::call_packet<rumal::js::none_type, int, double>, 
+                int, 
+                double, 
+                char [3]
+            >, 
+            char [3]
+        > 
+    > 
+>
+
+m0(1, 4.5).m3(4, 2.7, "hi")["42"].m5
+-------------------------------------
+rumal::js::method_<
+    m5_, 
+    rumal::js::index_packet<
+        rumal::js::call_packet<
+            rumal::js::call_packet<rumal::js::none_type, int, double>, 
+            int, 
+            double, 
+            char [3]
+        >, 
+        char [3]
+    >, 
+    void
+>
+
+m0(1, 4.5).m3(4, 2.7, "hi")["42"].m5("Hallo")
+----------------------------------------------
+rumal::js::returned_<
+    rumal::js::call_packet<
+        rumal::js::index_packet<
+            rumal::js::call_packet<
+                rumal::js::call_packet<rumal::js::none_type, int, double>, 
+                int, 
+                double, 
+                char [3]
+            >, 
+            char [3]
+        >, 
+        char [6]
+    >, 
+    void
+>
+
+m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
+----------------------------------
+rumal::js::property_<
+    object4_, 
+    rumal::js::index_packet<
+        rumal::js::call_packet<
+            rumal::js::call_packet<rumal::js::none_type, int, double>, 
+            int, 
+            double, 
+            char [3]
+        >, 
+        int
+    > 
+>
+
+m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5
+-------------------------------------
+rumal::js::method_<
+    m5_, 
+    rumal::js::access_packet<
+        rumal::js::index_packet<
+            rumal::js::call_packet<
+                rumal::js::call_packet<rumal::js::none_type, int, double>, 
+                int, 
+                double, 
+                char [3]
+            >, 
+            int
+        > 
+    >, 
+    void
+>
+
+m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5(42)
+----------------------------------------
+rumal::js::returned_<
+    rumal::js::call_packet<
+        rumal::js::access_packet<
+            rumal::js::index_packet<
+                rumal::js::call_packet<
+                    rumal::js::call_packet<rumal::js::none_type, int, double>, 
+                    int, 
+                    double, 
+                    char [3]
+                >, 
+                int
+            > 
+        >, 
+        int
+    >, 
+    void
+>

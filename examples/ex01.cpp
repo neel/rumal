@@ -1,5 +1,5 @@
 #include <iostream>
-#include <rumal/rumal.h>
+#include <rumal/rumal.hpp>
 
 int main(int argc, char **argv){
     using namespace rumal::html::attrs;
@@ -42,5 +42,8 @@ int main(int argc, char **argv){
                 );              
 
     std::cout << "Hello, world!" << std::endl;
+    
+    std::cout << ((rumal::js::_let("x") = 2) = 3) << std::endl;
+    
     return 0;
 }

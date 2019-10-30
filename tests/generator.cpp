@@ -5,7 +5,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string_regex.hpp>
-#include <rumal/rumal.h>
+#include <rumal/rumal.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
