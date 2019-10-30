@@ -159,7 +159,7 @@ struct value_wrapper_<std::string>{
     
     value_type _val;
     
-    value_wrapper_(const value_type& val): _val(val){}    
+    explicit value_wrapper_(const value_type& val): _val(val){}    
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
         stream << "\"" << _val << "\"";
@@ -303,7 +303,7 @@ struct callable_{
     template <typename PacketT> using follow = RetT<PacketT>;
     const char* _name;
     
-    callable_(const char* name): _name(name){}
+    explicit callable_(const char* name): _name(name){}
     const char* name() const {return _name;}
     template <typename... Args>
     returned_<call_packet<none_type, Args...>, follow<call_packet<none_type, Args...>>> operator()(const Args&... args){  
@@ -357,7 +357,7 @@ struct method_{
     callable_type _callable;
     PacketT _packet;
     
-    method_(const packet_type& pkt): _packet(pkt){}
+    explicit method_(const packet_type& pkt): _packet(pkt){}
     template <typename... Args>
     returned_<call_packet<PacketT, Args...>, typename CallableT::template follow<call_packet<PacketT, Args...>> > operator()(const Args&... args){
         call_packet<PacketT, Args...> pckt(_callable.name(), _packet, args...);

@@ -84,7 +84,7 @@ struct folded_attribute<U, void>{
    
     head_type _head;
    
-    folded_attribute(const head_type& head): _head(head){}
+    explicit folded_attribute(const head_type& head): _head(head){}
 };
 
 /**
@@ -163,7 +163,7 @@ attribute<html_attribute_trait, T> attr(const char* key, T value){
 
 struct keyed_attr{
     const char* _key;
-    keyed_attr(const char* key): _key(key){}
+    explicit keyed_attr(const char* key): _key(key){}
    
     template <typename T>
     attribute<html_attribute_trait, T> operator()(T value) const{
@@ -208,7 +208,7 @@ struct stripped_parameters{
     
     children_type _children;
     
-    stripped_parameters(const T&... children): _children(children...){}
+    explicit stripped_parameters(const T&... children): _children(children...){}
     template <typename StreamT>
     StreamT& write(StreamT& stream, const char* name, int indent = 0) const{
         for(int i = 0; i < indent; ++i){
@@ -233,7 +233,7 @@ struct stripped_parameters<char[N]>{
     
     children_type _children;
     
-    stripped_parameters(children_type children): _children(children){}
+    explicit stripped_parameters(children_type children): _children(children){}
     template <typename StreamT>
     StreamT& write(StreamT& stream, const char* name, int indent = 0) const{
         for(int i = 0; i < indent; ++i){
@@ -396,7 +396,7 @@ struct folded_tag<U, void>{
 
     head_type _head;
 
-    folded_tag(const head_type& head): _head(head){}
+    explicit folded_tag(const head_type& head): _head(head){}
     std::ostream& write(std::ostream& stream) const {
         stream << _head;
         return stream;
