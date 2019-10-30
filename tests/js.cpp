@@ -48,7 +48,7 @@ template <typename T>
 struct object2_: rumal::js::iterable_<T, object3_>{
     rumal::js::method_<m4_, T> m4;
     
-    object2_(const T& pkt): m4(pkt), rumal::js::iterable_<T, object3_>(pkt){}
+    object2_(const T& pkt): rumal::js::iterable_<T, object3_>(pkt), m4(pkt){}
 };
 
 struct m3_: rumal::js::callable_<m3_, object2_>{

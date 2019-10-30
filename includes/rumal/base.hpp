@@ -306,7 +306,7 @@ struct html_tag: stripped_parameters<T...>{
     
     const char* _name;
 
-    html_tag(const char* name, const T&... params): _name(name), base_type(params...){}
+    html_tag(const char* name, const T&... params): base_type(params...), _name(name){}
     template <typename StreamT>
     StreamT& write(StreamT& stream, int indent = 0) const{
         base_type::write(stream, _name, indent);

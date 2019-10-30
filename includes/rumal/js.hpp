@@ -57,7 +57,7 @@ struct assignable{
     
     const char* _name;
     
-    assignable(const char* name): _name(name){}
+    explicit assignable(const char* name): _name(name){}
        
     template <typename RightT>
     assignment<self_type, RightT> operator=(const RightT& val){
@@ -97,7 +97,7 @@ template <typename T>
 struct value_wrapper_{
     T _val;
     
-    value_wrapper_(const T& val): _val(val){}    
+    explicit value_wrapper_(const T& val): _val(val){}    
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
         stream << _val;
@@ -230,7 +230,7 @@ StreamT& operator<<(StreamT& stream, const call_packet<T...>& packet){
 
 struct none_type{};
 template <typename StreamT>
-StreamT& operator<<(StreamT& stream, const none_type& none){
+StreamT& operator<<(StreamT& stream, const none_type& /*none*/){
     return stream;
 }
 
@@ -254,7 +254,7 @@ struct returned_: public FollowT{
     
     packet_type _packet;
     
-    returned_(const packet_type& packet): _packet(packet), FollowT(packet){}
+    explicit returned_(const packet_type& packet): FollowT(packet), _packet(packet){}
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
         stream << _packet;
@@ -272,7 +272,7 @@ struct returned_<PacketT, void>{
     
     packet_type _packet;
     
-    returned_(const packet_type& packet): _packet(packet){}
+    explicit returned_(const packet_type& packet): _packet(packet){}
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
         stream << _packet;
@@ -325,7 +325,7 @@ struct callable_<DerivedT, meta_void>{
     
     const char* _name;
     
-    callable_(const char* name): _name(name){}
+    explicit callable_(const char* name): _name(name){}
     const char* name() const {return _name;}
     template <typename... Args>
     returned_<call_packet<none_type, Args...>, void> operator()(const Args&... args){  
@@ -378,7 +378,7 @@ struct method_<CallableT, PacketT, typename void_<typename CallableT::leaf_type>
     callable_type _callable;
     PacketT _packet;
     
-    method_(const packet_type& pkt): _packet(pkt){}
+    explicit method_(const packet_type& pkt): _packet(pkt){}
     template <typename... Args>
     returned_<call_packet<PacketT, Args...>, void> operator()(const Args&... args){
         call_packet<PacketT, Args...> pckt(_callable.name(), _packet, args...);
@@ -432,7 +432,7 @@ struct iterable_{
     typedef PacketT packet_type;
     packet_type _packet;
     
-    iterable_(const packet_type& pkt): _packet(pkt){}
+    explicit iterable_(const packet_type& pkt): _packet(pkt){}
     template <typename T>
     returned_<index_packet<packet_type, T>, FollowT<index_packet<packet_type, T>> > operator[](const T& value){
         index_packet<packet_type, T> pckt(_packet, value);
@@ -477,7 +477,7 @@ struct property_: FollowT<access_packet<PacketT>>{
     const char* _name;
     packet_type _packet;
     
-    property_(const char* name, const PacketT& pkt): _name(name), _packet(packet_type(pkt, name)), follow_type(_packet){}
+    property_(const char* name, const PacketT& pkt): follow_type(packet_type(pkt, name)), _name(name), _packet(packet_type(pkt, name)){}
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
         stream << _packet;

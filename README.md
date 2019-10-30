@@ -1,4 +1,4 @@
-rumal (রুমাল) is a tiny header only HTML/CSS generator C++ library
+rumal (রুমাল) is a tiny header only XML/HTML/SVG/CSS/Javascript* Generator C++ library
 ---
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
 [![pipeline status](https://gitlab.com/neel.basu/rumal/badges/master/pipeline.svg)](https://gitlab.com/neel.basu/rumal/commits/master) 
@@ -7,7 +7,7 @@ rumal (রুমাল) is a tiny header only HTML/CSS generator C++ library
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/neel/rumal.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/neel/rumal/alerts/)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/neel/rumal.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/neel/rumal/context:cpp)
 
-Composing HTML/CSS fragments do not involve any heap memory allocation. Both HTML and CSS blocks can be nested.
+Composing XML/HTML/SVG/CSS/Javascript* fragments do not involve any heap memory allocation. Both HTML and CSS blocks can be nested.
 An HTML block refers to an HTML tag whereas a CSS block refers to a CSS declarations block. Nesting a CSS block
 inside another results into nested CSS declaration.
 

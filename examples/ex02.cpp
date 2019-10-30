@@ -41,7 +41,7 @@ template <typename T>
 struct object2_: rumal::js::iterable_<T, object3_>{
     rumal::js::method_<m4_, T> m4;
     
-    object2_(const T& pkt): m4(pkt), rumal::js::iterable_<T, object3_>(pkt){}
+    object2_(const T& pkt): rumal::js::iterable_<T, object3_>(pkt), m4(pkt){}
 };
 
 struct m3_: rumal::js::callable_<m3_, object2_>{
@@ -61,7 +61,7 @@ struct m0_: rumal::js::callable_<m0_, object1_>{
     m0_(): rumal::js::callable_<m0_, object1_>("m0"){}
 };
 
-int main(int argc, char** argv){
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     fn_ fn;
     std::cout << fn(1, 2.5) << std::endl;
     

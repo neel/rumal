@@ -1,7 +1,7 @@
 #include <iostream>
 #include <rumal/rumal.hpp>
 
-int main(int argc, char **argv){
+int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv){
     using namespace rumal::html::attrs;
     using namespace rumal::html::tags;
     using namespace rumal::css;
