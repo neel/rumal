@@ -298,6 +298,27 @@ namespace packets{
         idx_pkt.write(stream);
         return stream;
     }
+    template <typename LeftT, typename RightT>
+    struct binary{
+        typedef LeftT left_packet_type;
+        typedef RightT right_packet_type;
+        
+        const char*       _op;
+        left_packet_type  _left;
+        right_packet_type _right;
+        
+        binary(const char* op, const left_packet_type& left, const right_packet_type& right): _op(op), _left(left), _right(right){}
+        template <typename StreamT>
+        StreamT& write(StreamT& stream) const{
+            stream << _left  << " " << _op << " " << _right;
+            return stream;
+        }
+    };
+    template <typename StreamT, typename L, typename R>
+    StreamT& operator<<(StreamT& stream, const binary<L, R>& pkt){
+        pkt.write(stream);
+        return stream;
+    }
 }
 
 struct none_type{};
@@ -472,17 +493,63 @@ StreamT& operator<<(StreamT& stream, const property_<FollowT, PacketT>& prop){
     return stream;
 }
 
-template <typename Packet, typename LeftT, typename RightT>
-struct binary_operation_packet{
-    typedef typename LeftT::packet_type  left_packet_type;
-    typedef typename RightT::packet_type right_packet_type;
+template <typename L, typename R>
+struct binary_expression: public expression_<packets::binary<typename L::packet_type, typename R::packet_type>>{
+    typedef L left_expr_type;
+    typedef R right_expr_type;
+    typedef typename L::packet_type left_packet_type;
+    typedef typename R::packet_type right_packet_type;
+    typedef packets::binary<typename L::packet_type, typename R::packet_type> packet_type;
+    typedef expression_<packet_type> expression_type;
     
-    const char*       _op;
-    left_packet_type  _left;
-    right_packet_type _right;
+    const char* _op;
     
-    binary_operation_packet(const char* op, const left_packet_type& left, const right_packet_type& right): _op(op), _left(left), _right(right){}
+    binary_expression(const char* op, const L& left, const R& right): expression_type(packet_type(op, left._packet, right._packet)){}
 };
+
+template <typename StreamT, typename L, typename R>
+StreamT& operator<<(StreamT& stream, const binary_expression<L, R>& binex){
+    binex.write(stream);
+    return stream;
+}
+
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator+(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("+", leftex, rightex);
+}
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator-(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("-", leftex, rightex);
+}
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator*(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("*", leftex, rightex);
+}
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator/(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("/", leftex, rightex);
+}
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator==(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("==", leftex, rightex);
+}
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator<=(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("<=", leftex, rightex);
+}
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator>=(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>(">=", leftex, rightex);
+}
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator<(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("<", leftex, rightex);
+}
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator>(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>(">", leftex, rightex);
+}
+
 
 
 }
