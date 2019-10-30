@@ -43,7 +43,7 @@ struct assignment{
     
     assignment(const left_type& lhs, const right_type& val): _var(lhs), _val(val){}
     template <typename RhsT>
-    assignment<self_type, RhsT> operator=(const RhsT& val){
+    assignment<self_type, RhsT> operator=(const RhsT& val){ // lgtm[cpp/assignment-does-not-return-this]
         return assignment<self_type, RhsT>(*this, val);
     }
 };
@@ -60,7 +60,7 @@ struct assignable{
     explicit assignable(const char* name): _name(name){}
        
     template <typename RightT>
-    assignment<self_type, RightT> operator=(const RightT& val){
+    assignment<self_type, RightT> operator=(const RightT& val){ // lgtm[cpp/assignment-does-not-return-this]
         return assignment<self_type, RightT>(*this, val);
     }
 };
