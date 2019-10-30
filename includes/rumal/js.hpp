@@ -32,21 +32,21 @@
 namespace rumal{
 namespace js{
     
-template <typename LeftT, typename RightT>
-struct assignment{
-    typedef LeftT  left_type;
-    typedef RightT right_type;
-    typedef assignment<LeftT, RightT> self_type;
-    
-    left_type  _var;
-    right_type _val;
-    
-    assignment(const left_type& lhs, const right_type& val): _var(lhs), _val(val){}
-    template <typename RhsT>
-    assignment<self_type, RhsT> operator=(const RhsT& val){
-        return assignment<self_type, RhsT>(*this, val);
-    }
-};
+// template <typename LeftT, typename RightT>
+// struct assignment{
+//     typedef LeftT  left_type;
+//     typedef RightT right_type;
+//     typedef assignment<LeftT, RightT> self_type;
+//     
+//     left_type  _var;
+//     right_type _val;
+//     
+//     assignment(const left_type& lhs, const right_type& val): _var(lhs), _val(val){}
+//     template <typename RhsT>
+//     assignment<self_type, RhsT> operator=(const RhsT& val){
+//         return assignment<self_type, RhsT>(*this, val);
+//     }
+// };
     
 /**
  * \brief a generic variable needs an access specifier like var, let, const. 
@@ -59,10 +59,10 @@ struct assignable{
     
     explicit assignable(const char* name): _name(name){}
        
-    template <typename RightT>
-    assignment<self_type, RightT> operator=(const RightT& val){
-        return assignment<self_type, RightT>(*this, val);
-    }
+//     template <typename RightT>
+//     assignment<self_type, RightT> operator=(const RightT& val){
+//         return assignment<self_type, RightT>(*this, val);
+//     }
 };
 
 template <typename StreamT, typename AccessT>
@@ -71,11 +71,11 @@ StreamT& operator<<(StreamT& stream, const assignable<AccessT>& var){
     return stream;
 }
 
-template <typename StreamT, typename LeftT, typename RightT>
-StreamT& operator<<(StreamT& stream, const assignment<LeftT, RightT>& assign){
-    stream << assign._var << " = " << assign._val;
-    return stream;
-}
+// template <typename StreamT, typename LeftT, typename RightT>
+// StreamT& operator<<(StreamT& stream, const assignment<LeftT, RightT>& assign){
+//     stream << assign._var << " = " << assign._val;
+//     return stream;
+// }
 
 struct let_{
     inline static const char* specifier = "let";
@@ -91,7 +91,7 @@ struct var_{
 
 typedef assignable<let_>   _let;
 typedef assignable<const_> _const;
-typedef assignable<var_>    _var;
+typedef assignable<var_>   _var;
 
 template <typename T>
 struct value_wrapper_{
@@ -319,6 +319,10 @@ namespace packets{
         pkt.write(stream);
         return stream;
     }
+    template <typename AccessT, typename RightT>
+    struct assignment: public binary<assignable<AccessT>, RightT>{
+        assignment(const assignable<AccessT>& lhs, const RightT& rhs): binary<assignable<AccessT>, RightT>("=", lhs, rhs){}
+    };
 }
 
 struct none_type{};
