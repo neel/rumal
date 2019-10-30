@@ -1,9 +1,9 @@
 m0(1, 4.5)
 -----------
 rumal::js::returned_<
-    rumal::js::packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::call<rumal::js::none_type, int, double>, 
     object1_<
-        rumal::js::packet<rumal::js::none_type, int, double> 
+        rumal::js::packets::call<rumal::js::none_type, int, double> 
     > 
 >
 
@@ -11,15 +11,15 @@ m0(1, 4.5).m1
 --------------
 rumal::js::method_<
     m1_, 
-    rumal::js::packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::call<rumal::js::none_type, int, double>, 
     void
 >
 
 m0(1, 4.5).m1(42.65)
 ---------------------
 rumal::js::returned_<
-    rumal::js::packet<
-        rumal::js::packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::call<
+        rumal::js::packets::call<rumal::js::none_type, int, double>, 
         double
     >, 
     void
@@ -30,7 +30,7 @@ m0(1, 4.5).m3
 -------------
 rumal::js::method_<
     m3_, 
-    rumal::js::packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::call<rumal::js::none_type, int, double>, 
     void
 >
 
@@ -38,13 +38,13 @@ rumal::js::method_<
 m0(1, 4.5).m3(42.65)
 ---------------------
 rumal::js::returned_<
-    rumal::js::packet<
-        rumal::js::packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::call<
+        rumal::js::packets::call<rumal::js::none_type, int, double>, 
         double
     >, 
     object2_<
-        rumal::js::packet<
-            rumal::js::packet<rumal::js::none_type, int, double>, 
+        rumal::js::packets::call<
+            rumal::js::packets::call<rumal::js::none_type, int, double>, 
             double
         > 
     > 
@@ -54,8 +54,8 @@ m0(1, 4.5).m3(22).m4
 ----------------------
 rumal::js::method_<
     m4_, 
-    rumal::js::packet<
-        rumal::js::packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::call<
+        rumal::js::packets::call<rumal::js::none_type, int, double>, 
         int
     >, 
     void
@@ -64,9 +64,9 @@ rumal::js::method_<
 m0(1, 4.5).m3(22).m4(22.5)
 --------------------------
 rumal::js::returned_<
-    rumal::js::packet<
-        rumal::js::packet<
-            rumal::js::packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::call<
+        rumal::js::packets::call<
+            rumal::js::packets::call<rumal::js::none_type, int, double>, 
             int
         >, 
         double
@@ -77,9 +77,9 @@ rumal::js::returned_<
 m0(1, 4.5).m3(4, 2.7, "hi")["42"]
 ----------------------------------
 rumal::js::returned_<
-    rumal::js::index_packet<
-        rumal::js::call_packet<
-            rumal::js::call_packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::index<
+        rumal::js::packets::call<
+            rumal::js::packets::call<rumal::js::none_type, int, double>, 
             int, 
             double, 
             char [3]
@@ -87,9 +87,9 @@ rumal::js::returned_<
         char [3]
     >, 
     object3_<
-        rumal::js::index_packet<
-            rumal::js::call_packet<
-                rumal::js::call_packet<rumal::js::none_type, int, double>, 
+        rumal::js::packets::index<
+            rumal::js::packets::call<
+                rumal::js::packets::call<rumal::js::none_type, int, double>, 
                 int, 
                 double, 
                 char [3]
@@ -103,9 +103,9 @@ m0(1, 4.5).m3(4, 2.7, "hi")["42"].m5
 -------------------------------------
 rumal::js::method_<
     m5_, 
-    rumal::js::index_packet<
-        rumal::js::call_packet<
-            rumal::js::call_packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::index<
+        rumal::js::packets::call<
+            rumal::js::packets::call<rumal::js::none_type, int, double>, 
             int, 
             double, 
             char [3]
@@ -118,10 +118,10 @@ rumal::js::method_<
 m0(1, 4.5).m3(4, 2.7, "hi")["42"].m5("Hallo")
 ----------------------------------------------
 rumal::js::returned_<
-    rumal::js::call_packet<
-        rumal::js::index_packet<
-            rumal::js::call_packet<
-                rumal::js::call_packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::call<
+        rumal::js::packets::index<
+            rumal::js::packets::call<
+                rumal::js::packets::call<rumal::js::none_type, int, double>, 
                 int, 
                 double, 
                 char [3]
@@ -137,9 +137,9 @@ m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
 ----------------------------------
 rumal::js::property_<
     object4_, 
-    rumal::js::index_packet<
-        rumal::js::call_packet<
-            rumal::js::call_packet<rumal::js::none_type, int, double>, 
+    rumal::js::packets::index<
+        rumal::js::packets::call<
+            rumal::js::packets::call<rumal::js::none_type, int, double>, 
             int, 
             double, 
             char [3]
@@ -153,9 +153,9 @@ m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5
 rumal::js::method_<
     m5_, 
     rumal::js::access_packet<
-        rumal::js::index_packet<
-            rumal::js::call_packet<
-                rumal::js::call_packet<rumal::js::none_type, int, double>, 
+        rumal::js::packets::index<
+            rumal::js::packets::call<
+                rumal::js::packets::call<rumal::js::none_type, int, double>, 
                 int, 
                 double, 
                 char [3]
@@ -169,11 +169,11 @@ rumal::js::method_<
 m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5(42)
 ----------------------------------------
 rumal::js::returned_<
-    rumal::js::call_packet<
+    rumal::js::packets::call<
         rumal::js::access_packet<
-            rumal::js::index_packet<
-                rumal::js::call_packet<
-                    rumal::js::call_packet<rumal::js::none_type, int, double>, 
+            rumal::js::packets::index<
+                rumal::js::packets::call<
+                    rumal::js::packets::call<rumal::js::none_type, int, double>, 
                     int, 
                     double, 
                     char [3]
@@ -184,4 +184,107 @@ rumal::js::returned_<
         int
     >, 
     void
+>
+
+fn + m0
+--------
+rumal::js::binary_expression<
+    rumal::js::expression_<
+        rumal::js::packets::access<rumal::js::none_type> 
+    >, 
+    rumal::js::expression_<
+        rumal::js::packets::access<rumal::js::none_type> 
+    > 
+>
+
+m0(1, 4.5) - m0(1, 4.5).m1(4, 2.7)
+-----------------------------------
+rumal::js::binary_expression<
+    rumal::js::expression_<
+        rumal::js::packets::call<rumal::js::none_type, int, double> 
+    >, 
+    rumal::js::expression_<
+        rumal::js::packets::call<
+            rumal::js::packets::call<rumal::js::none_type, int, double>, 
+            int,
+            double
+        > 
+    > 
+>
+
+m0(1, 4.5) | m0(1, 4.5).m1(4, 2.7)
+-----------------------------------
+rumal::js::serial_expression<
+    rumal::js::expression_<
+        rumal::js::packets::call<rumal::js::none_type, int, double> 
+    >, 
+    rumal::js::expression_<
+        rumal::js::packets::call<
+            rumal::js::packets::call<rumal::js::none_type, int, double>, 
+            int, 
+            double
+        > 
+    > 
+>
+
+m0(1, 4.5) | m0(1, 4.5).m1(4, 2.7) | m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
+-----------------------------------------------------------------------
+rumal::js::serial_expression<
+    rumal::js::expression_<
+        rumal::js::packets::serial<
+            rumal::js::packets::call<rumal::js::none_type, int, double>, 
+            rumal::js::packets::call<
+                rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                int, 
+                double
+            > 
+        > 
+    >, 
+    rumal::js::expression_<
+        rumal::js::packets::access<
+            rumal::js::packets::index<
+                rumal::js::packets::call<
+                    rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                    int, 
+                    double, 
+                    char [3]
+                >, 
+                int
+            > 
+        > 
+    > 
+>
+
+m0(1, 4.5) | m0(1, 4.5) + m0(1, 4.5).m1(4, 2.7) - fn | m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
+-----------------------------------------------------------------------------------------
+rumal::js::serial_expression<
+    rumal::js::expression_<
+        rumal::js::packets::serial<
+            rumal::js::packets::call<rumal::js::none_type, int, double>, 
+            rumal::js::packets::binary<
+                rumal::js::packets::binary<
+                    rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                    rumal::js::packets::call<
+                        rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                        int, 
+                        double
+                    > 
+                >, 
+                rumal::js::packets::access<rumal::js::none_type> 
+            > 
+        > 
+    >, 
+    rumal::js::expression_<
+        rumal::js::packets::access<
+            rumal::js::packets::index<
+                rumal::js::packets::call<
+                    rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                    int, 
+                    double, 
+                    char [3]
+                >, 
+                int
+            > 
+        > 
+    > 
 >
