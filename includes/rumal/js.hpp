@@ -357,45 +357,38 @@ struct returned_<PacketT, void>: public expression_<PacketT>{
  * \tparam RetT return stub type
  **/
 template <typename DerivedT, template<typename> class RetT=meta_void>
-struct callable_{
+struct callable_: public expression_<packets::access<none_type>>{
     typedef DerivedT derived_type;
     typedef callable_<DerivedT, RetT> self_type;
+    typedef expression_<packets::access<none_type>> expression_type;
     template <typename PacketT> using follow = RetT<PacketT>;
+    
     const char* _name;
     
-    explicit callable_(const char* name): _name(name){}
+    explicit callable_(const char* name): expression_type(packets::access<none_type>(none_type(), name)), _name(name){}
     const char* name() const {return _name;}
     template <typename... Args>
     returned_<packets::call<none_type, Args...>, follow<packets::call<none_type, Args...>>> operator()(const Args&... args){  
         packets::call<none_type, Args...> pckt(_name, none_type(), args...);
         return returned_<packets::call<none_type, Args...>, follow<packets::call<none_type, Args...>>>(pckt);
     }
-    template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << _name;
-        return stream;
-    }
 };
 
 template <typename DerivedT>
-struct callable_<DerivedT, meta_void>{
+struct callable_<DerivedT, meta_void>: public expression_<packets::access<none_type>>{
     typedef DerivedT derived_type;
     typedef callable_<DerivedT, meta_void> self_type;
+    typedef expression_<packets::access<none_type>> expression_type;
     typedef bool leaf_type;
     
     const char* _name;
     
-    explicit callable_(const char* name): _name(name){}
+    explicit callable_(const char* name): expression_type(packets::access<none_type>(none_type(), name)), _name(name){}
     const char* name() const {return _name;}
     template <typename... Args>
     returned_<packets::call<none_type, Args...>, void> operator()(const Args&... args){  
         packets::call<none_type, Args...> pckt(_name, none_type(), args...);
         return returned_<packets::call<none_type, Args...>, void>(pckt);
-    }
-    template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << _name;
-        return stream;
     }
 };
 
