@@ -517,7 +517,7 @@ binary_expression<expression_<L>, expression_<R>> operator>(const expression_<L>
     return binary_expression<expression_<L>, expression_<R>>(">", leftex, rightex);
 }
 template <typename L, typename R>
-serial_expression<expression_<L>, expression_<R>> operator|(const expression_<L>& leftex, const expression_<R>& rightex){
+serial_expression<expression_<L>, expression_<R>> operator,(const expression_<L>& leftex, const expression_<R>& rightex){
     return serial_expression<expression_<L>, expression_<R>>(leftex, rightex);
 }
 template <typename L, typename R>
