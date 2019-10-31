@@ -38,10 +38,11 @@ struct object3_{
 };
 
 template <typename T>
-struct object2_: rumal::js::iterable_<T, object3_>{
+struct object2_: rumal::js::iterable_<T>{
     rumal::js::method_<m4_, T> m4;
+    rumal::js::method_<m5_, T> m5;
     
-    object2_(const T& pkt): rumal::js::iterable_<T, object3_>(pkt), m4(pkt){}
+    object2_(const T& pkt): rumal::js::iterable_<T>(pkt), m4(pkt), m5(pkt){}
 };
 
 struct m3_: rumal::js::callable_<m3_, object2_>{
@@ -71,18 +72,26 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     std::cout << m0(1, 4.5) << std::endl;
     std::cout << m0(1, 4.5).m1(4, 2.7) << std::endl;
     std::cout << m0(1, 4.5).m3(4, 2.7) << std::endl;
+    std::cout << m0(1, 4.5).m3(4, 2.7).m4 << std::endl;
     std::cout << m0(1, 4.5).m3(4, 2.7).m4(4, 75.5) << std::endl;
-    std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].m5("Hallo") << std::endl;
-    std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4 << std::endl;
-    std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5 << std::endl;
-    std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5(42) << std::endl;
-    std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5() << std::endl;
-    std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5(42) - m0(1, 4.5).m3(4, 2.7, "hi")[1].o4 + fn * m0 << std::endl;
-    std::cout << (m0(1, 4.5) | m0(1, 4.5).m1(4, 2.7) | m0(1, 4.5).m3(4, 2.7, "hi")[1].o4) << std::endl;
 
-    auto x = rumal::js::assignable<>("x");
+//     std::cout << m0(1, 4.5).m3(4, 2.7, "hello")[1].m5 << std::endl;
+//     std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].m5("Hallo") << std::endl;
+//     std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4 << std::endl;
+//     std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5 << std::endl;
+//     std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5(42) << std::endl;
+//     std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5() << std::endl;
+//     std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5(42) - m0(1, 4.5).m3(4, 2.7, "hi")[1].o4 + fn * m0 << std::endl;
+//     std::cout << (m0(1, 4.5) | m0(1, 4.5).m1(4, 2.7) | m0(1, 4.5).m3(4, 2.7, "hi")[1].o4) << std::endl;
+
+    auto x = rumal::js::assignable<object2_>("x");
     std::cout << x << std::endl;
-    std::cout << (x <<= m0(1, 4.5)) << std::endl;
+    std::cout << _const(x) << std::endl;
+    std::cout << (_let(x) <<= m0(1, 4.5)) << std::endl;
+    std::cout << x.m5(4, 2, 42.42) << std::endl;
+    std::cout << x.m5 << std::endl;
+    
+        std::cout << m0(1, 4.5).m3(4, 2.7).m5 << std::endl;
     
     return 0;
 }

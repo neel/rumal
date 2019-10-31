@@ -415,14 +415,15 @@ StreamT& operator<<(StreamT& stream, const method_<CallableT, PacketT>& pkt){
 template <typename PacketT, template<typename> class FollowT=meta_void>
 struct iterable_{
     typedef PacketT packet_type;
-    packet_type _packet;
     
-    explicit iterable_(const packet_type& pkt): _packet(pkt){}
+    explicit iterable_(const packet_type& pkt): _pkt(pkt){}
     template <typename T>
     returned_<packets::index<packet_type, T>, FollowT<packets::index<packet_type, T>> > operator[](const T& value){
-        packets::index<packet_type, T> pckt(_packet, value);
+        packets::index<packet_type, T> pckt(_pkt, value);
         return returned_<packets::index<packet_type, T>, FollowT<packets::index<packet_type, T>> >(pckt);
     }
+    private:
+        packet_type _pkt;
 };
 
 template <template<typename> class FollowT, typename PacketT>
@@ -524,20 +525,8 @@ binary_expression<expression_<L>, expression_<R>> operator<<=(const expression_<
     return binary_expression<expression_<L>, expression_<R>>("=", leftex, rightex);
 }
 
-struct let_{
-    inline static const char* specifier = "let";
-};
-
-struct const_{
-    inline static const char* specifier = "const";
-};
-
-struct var_{
-    inline static const char* specifier = "var";
-};
-
 /**
- * \brief a generic variable needs an access specifier like var, let, const. 
+ * \brief a generic variable 
  */
 template <template<typename> class FollowT=meta_void>
 struct assignable: public expression_<packets::access<none_type>>, public FollowT<packets::access<none_type>>{
@@ -547,31 +536,13 @@ struct assignable: public expression_<packets::access<none_type>>, public Follow
     
     const char* _name;
     
-    explicit assignable(const char* name): expression_type(packets::access<none_type>(none_type(), name)), _name(name){}
+    explicit assignable(const char* name): expression_type(packets::access<none_type>(none_type(), name)), FollowT<packets::access<none_type>>(packets::access<none_type>(none_type(), name)), _name(name){}
 };
 template <typename StreamT, template<typename> class FollowT>
 StreamT& operator<<(StreamT& stream, const assignable<FollowT>& var){
     var.write(stream);
     return stream;
 }
-
-// template <template<typename> class FollowT=meta_void> using _let   = assignable<let_, FollowT>;
-// template <template<typename> class FollowT=meta_void> using _var   = assignable<var_, FollowT>;
-// template <template<typename> class FollowT=meta_void> using _const = assignable<const_, FollowT>;
-
-// template <typename A>
-// struct value_wrapper_<assignable<A>>{
-//     typedef assignable<A> value_type;
-//     
-//     value_type _val;
-//     
-//     value_wrapper_(const value_type& val): _val(val){}    
-//     template <typename StreamT>
-//     StreamT& write(StreamT& stream) const{
-//         stream << _val._name;
-//         return stream;
-//     }
-// };
 
 namespace packets{ 
     template <typename AccessT>
@@ -586,11 +557,65 @@ namespace packets{
             return stream;
         }
     };
+    template <typename StreamT, typename AccessT>
+    StreamT& operator<<(StreamT& stream, const declaration<AccessT>& var){
+        var.write(stream);
+        return stream;
+    }
+    
+    template <typename AssignmentT, typename RightT>
+    struct assignment;
     
     template <template<typename> class FollowT, typename RightT>
-    struct assignment: public binary<assignable<FollowT>, RightT>{
+    struct assignment<assignable<FollowT>, RightT>: public binary<assignable<FollowT>, RightT>{
         assignment(const assignable<FollowT>& lhs, const RightT& rhs): binary<assignable<FollowT>, RightT>("=", lhs, rhs){}
     };
+}
+
+struct let_{
+    inline static const char* specifier = "let";
+};
+
+struct const_{
+    inline static const char* specifier = "const";
+};
+
+struct var_{
+    inline static const char* specifier = "var";
+};
+
+template <typename AssignableT, typename AccessT>
+struct declaration_expression;
+
+template <typename StreamT, typename AssignableT, typename AccessT>
+StreamT& operator<<(StreamT& stream, const declaration_expression<AssignableT, AccessT>& declxp){
+    declxp.write(stream);
+    return stream;
+}
+
+template <template<typename> class FollowT, typename AccessT>
+struct declaration_expression<assignable<FollowT>, AccessT>: public expression_<packets::declaration<AccessT>>{
+    declaration_expression(const assignable<FollowT>& assgn): expression_<packets::declaration<AccessT>>(packets::declaration<AccessT>(assgn._packet)){}
+};
+
+namespace packets{ 
+    template <template<typename> class FollowT, typename AccessT, typename RightT>
+    struct assignment<declaration_expression<assignable<FollowT>, AccessT>, RightT>: public binary<declaration_expression<assignable<FollowT>, AccessT>, RightT>{
+        assignment(const declaration_expression<assignable<FollowT>, AccessT>& lhs, const RightT& rhs): binary<declaration_expression<assignable<FollowT>, AccessT>, RightT>("=", lhs, rhs){}
+    };
+}
+
+template <template<typename> class FollowT=meta_void>
+declaration_expression<assignable<FollowT>, let_> _let(const assignable<FollowT>& assgn){
+    return declaration_expression<assignable<FollowT>, let_>(assgn);
+}
+template <template<typename> class FollowT=meta_void>
+declaration_expression<assignable<FollowT>, const_> _const(const assignable<FollowT>& assgn){
+    return declaration_expression<assignable<FollowT>, const_>(assgn);
+}
+template <template<typename> class FollowT=meta_void>
+declaration_expression<assignable<FollowT>, var_> _var(const assignable<FollowT>& assgn){
+    return declaration_expression<assignable<FollowT>, var_>(assgn);
 }
 
 }
