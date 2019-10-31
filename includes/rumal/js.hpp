@@ -379,7 +379,7 @@ struct method_: public expression_<packets::access<PacketT>>{
     callable_type _callable;
     PacketT _packet;
     
-    explicit method_(const packet_type& pkt): expression_type(packets::access<PacketT>(pkt, _callable.name())), _packet(pkt){}
+    explicit method_(const packet_type& pkt): expression_type(packets::access<PacketT>(pkt, callable_type().name())), _packet(pkt){}
     template <typename... Args>
     returned_<packets::call<PacketT, Args...>, typename CallableT::template follow<packets::call<PacketT, Args...>> > operator()(const Args&... args){
         packets::call<PacketT, Args...> pckt(_callable.name(), _packet, args...);
@@ -399,7 +399,7 @@ struct method_<CallableT, PacketT, typename void_<typename CallableT::leaf_type>
     callable_type _callable;
     PacketT _packet;
     
-    explicit method_(const packet_type& pkt): expression_type(packets::access<PacketT>(pkt, _callable.name())), _packet(pkt){}
+    explicit method_(const packet_type& pkt): expression_type(packets::access<PacketT>(pkt, callable_type().name())), _packet(pkt){}
     template <typename... Args>
     returned_<packets::call<PacketT, Args...>, void> operator()(const Args&... args){
         packets::call<PacketT, Args...> pckt(_callable.name(), _packet, args...);
