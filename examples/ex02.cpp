@@ -80,7 +80,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5(42) - m0(1, 4.5).m3(4, 2.7, "hi")[1].o4 + fn * m0 << std::endl;
     std::cout << (m0(1, 4.5) | m0(1, 4.5).m1(4, 2.7) | m0(1, 4.5).m3(4, 2.7, "hi")[1].o4) << std::endl;
 
-    auto x = rumal::js::_const<>("x");
+    auto x = rumal::js::assignable<>("x");
     std::cout << x << std::endl;
     std::cout << (x <<= m0(1, 4.5)) << std::endl;
     
