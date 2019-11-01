@@ -480,3 +480,45 @@ rumal::js::serial_expression<
         > 
     > 
 >
+
+function(x)[
+    fn('a'),
+    m0("a"),
+    fn(12),
+    function(y)[
+        fn(1),
+        m0(2),
+        fn(3)
+    ]
+]
+-----------------
+rumal::js::scope_expression<
+    rumal::js::packets::arguments<rumal::js::assignable<object2_> >, 
+    rumal::js::serial_expression<
+        rumal::js::expression_<
+            rumal::js::packets::serial<
+                rumal::js::packets::serial<
+                    rumal::js::packets::call<rumal::js::none_type, char>, 
+                    rumal::js::packets::call<rumal::js::none_type, char [2]> 
+                >, 
+                rumal::js::packets::call<rumal::js::none_type, int> 
+            > 
+        >, 
+        rumal::js::expression_<
+            rumal::js::packets::scope<
+                rumal::js::packets::arguments<rumal::js::assignable<object2_> >, 
+                rumal::js::serial_expression<
+                    rumal::js::expression_<
+                        rumal::js::packets::serial<
+                            rumal::js::packets::call<rumal::js::none_type, int>, 
+                            rumal::js::packets::call<rumal::js::none_type, int> 
+                        > 
+                    >, 
+                    rumal::js::expression_<
+                        rumal::js::packets::call<rumal::js::none_type, int> 
+                    > 
+                > 
+            > 
+        > 
+    > 
+>

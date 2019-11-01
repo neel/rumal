@@ -128,5 +128,33 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
         ] 
     )<< std::endl;
     
+    using namespace rumal::js;
+    assignable<> z("z");
+    std::cout << (
+        function(x)[
+            fn('a'),
+            m0("a"),
+            fn(12),
+            function(y)[
+                fn(1),
+                m0(2),
+                fn(3)
+            ]
+        ]
+    ) << std::endl;
+    
+    (
+        function(x)[
+            fn('a'),
+            m0("a"),
+            fn(12),
+            function(y)[
+                fn(1),
+                m0(2),
+                fn(3)
+            ]
+        ]
+    ).xyz;
+    
     return 0;
 }

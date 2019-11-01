@@ -356,7 +356,7 @@ struct dot<none_type>{
 template <typename... T>
 struct meta_void{
     meta_void(){}
-    meta_void(const T&... value){}
+    meta_void(const T&... /*value*/){}
 };
 
 template <typename PacketT, typename FollowT=void>
