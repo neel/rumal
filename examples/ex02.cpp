@@ -112,19 +112,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
             m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
         ]
     ) << std::endl;
-    
-//     (
-//         24 + m0(1, 4.5).m3(4, 2.7).m4 + 42 + "Hallo World",
-//         rumal::js::_if(x >= 1 && 2*x >= 1)[
-//             m0(1, 4.5), 
-//             m0(1, 4.5).m1(4, 2.7)
-//         ],
-//         rumal::js::_else()[
-//             m0(1, 4.5), 
-//             m0(1, 4.5).m1(4, 2.7)
-//         ]
-//     ).xyz;
-    
+       
     auto y = rumal::js::assignable<object2_>("y");
     
     std::cout <<( 
@@ -135,7 +123,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     )<< std::endl;
     
     std::cout <<( 
-        rumal::js::_for(x <<= 0, x < 1, x <<= x+1)[
+        rumal::js::_for(x <<= 0, x < 1, x += 1)[
             x.m4(4, 2, 42.42)
         ] 
     )<< std::endl;

@@ -691,6 +691,71 @@ binary_expression<expression_<packets::constant<L>>, expression_<R>> operator>(c
 }
 
 template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator+=(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("+=", leftex, rightex);
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator+=(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("+=", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator+=(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("+=", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator-=(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("-=", leftex, rightex);
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator-=(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("-=", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator-=(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("-=", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator*=(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("*=", leftex, rightex);
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator*=(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("*=", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator*=(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("*=", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator/=(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("/=", leftex, rightex);
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator/=(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("/=", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator/=(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("/=", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator%=(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("%=", leftex, rightex);
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator%=(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("%=", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator%=(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("%=", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
+template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator<<=(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>("=", leftex, rightex);
 }
