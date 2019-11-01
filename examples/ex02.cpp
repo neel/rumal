@@ -90,9 +90,40 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     std::cout << (_let(x) <<= m0(1, 4.5)) << std::endl;
     std::cout << x.m4(4, 2, 42.42) << std::endl;
     std::cout << x.m4 << std::endl;
-    
     std::cout << m0(1, 4.5).m3(4, 2.7).m4 << std::endl;
-
+    
+    std::cout << (24 + m0(1, 4.5).m3(4, 2.7).m4 + 42 + "Hallo World")<< std::endl;
+    
+    std::cout << (
+        24 + m0(1, 4.5).m3(4, 2.7).m4 + 42 + "Hallo World",
+        rumal::js::_if(x >= 1 && 2*x >= 1)[
+            m0(1, 4.5), 
+            m0(1, 4.5).m1(4, 2.7),
+            m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
+        ],
+        rumal::js::_else(x < 0.5)[
+            m0(1, 4.5), 
+            m0(1, 4.5).m1(4, 2.7),
+            m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
+        ],
+        rumal::js::_else()[
+            m0(1, 4.5), 
+            m0(1, 4.5).m1(4, 2.7),
+            m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
+        ]
+    ) << std::endl;
+    
+//     (
+//         24 + m0(1, 4.5).m3(4, 2.7).m4 + 42 + "Hallo World",
+//         rumal::js::_if(x >= 1 && 2*x >= 1)[
+//             m0(1, 4.5), 
+//             m0(1, 4.5).m1(4, 2.7)
+//         ],
+//         rumal::js::_else()[
+//             m0(1, 4.5), 
+//             m0(1, 4.5).m1(4, 2.7)
+//         ]
+//     ).xyz;
     
     return 0;
 }

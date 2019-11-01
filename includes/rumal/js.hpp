@@ -246,6 +246,12 @@ namespace packets{
         pkt.write(stream);
         return stream;
     }
+    
+    template <typename T>
+    struct print_terminal{
+        enum {value = true};
+    };
+   
     template <typename LeftT, typename RightT>
     struct serial{
         typedef LeftT left_packet_type;
@@ -257,12 +263,76 @@ namespace packets{
         serial(const left_packet_type& left, const right_packet_type& right): _left(left), _right(right){}
         template <typename StreamT>
         StreamT& write(StreamT& stream) const{
-            stream << _left  << ";" << _right;
+            stream << _left;
+            if(print_terminal<left_packet_type>::value)
+                stream << ";" ;
+            stream << _right;
             return stream;
         }
     };
     template <typename StreamT, typename L, typename R>
     StreamT& operator<<(StreamT& stream, const serial<L, R>& pkt){
+        pkt.write(stream);
+        return stream;
+    }
+    template <typename HeadT, typename BodyT>
+    struct scope{
+        typedef HeadT head_type;
+        typedef BodyT body_type;
+        
+        head_type _head;
+        body_type _body;
+        const char* _name;
+        
+        scope(const char* name, const head_type& head, const body_type& body): _head(head), _body(body), _name(name){}
+        template <typename StreamT>
+        StreamT& write(StreamT& stream) const{
+            stream << _name << "(" << _head << ")" << "{" << _body << ";" << "}";
+            return stream;
+        }
+    };
+    template <typename BodyT>
+    struct scope<void, BodyT>{
+        typedef BodyT body_type;
+
+        body_type _body;
+        const char* _name;
+        
+        scope(const char* name, const body_type& body): _body(body), _name(name){}
+        template <typename StreamT>
+        StreamT& write(StreamT& stream) const{
+            stream << _name << "{" << _body << ";" << "}";
+            return stream;
+        }
+    };
+    template <typename H1, typename B1>
+    struct print_terminal<scope<H1, B1>>{
+        enum {value = false};
+    };
+    template <typename T, typename H1, typename B1>
+    struct print_terminal<serial<T, scope<H1, B1>>>{
+        enum {value = false};
+    };
+    template <typename StreamT, typename H, typename B>
+    StreamT& operator<<(StreamT& stream, const scope<H, B>& pkt){
+        pkt.write(stream);
+        return stream;
+    }
+    template <typename T, std::enable_if_t<std::is_pod_v<T>, bool> = true>
+    struct constant{
+        typedef T value_type;
+        
+        trans_t<value_type> _val;
+        
+        constant(const value_type& val): _val(val){}
+        template <typename StreamT>
+        StreamT& write(StreamT& stream) const{
+            stream << value_wrapper_(_val);
+            return stream;
+        }
+    };
+    template <typename StreamT, typename T>
+    StreamT& operator<<(StreamT& stream, const constant<T>& pkt){
         pkt.write(stream);
         return stream;
     }
@@ -431,10 +501,8 @@ struct property_: public FollowT<packets::access<PacketT>>, public expression_<p
     typedef packets::access<PacketT> packet_type;
     typedef FollowT<packets::access<PacketT>> follow_type;
     typedef expression_<packets::access<PacketT>> expression_type;
-    
-    const char* _name;
-    
-    property_(const char* name, const PacketT& pkt): follow_type(packet_type(pkt, name)), expression_type(packet_type(pkt, name)), _name(name){}
+     
+    property_(const char* name, const PacketT& pkt): follow_type(packet_type(pkt, name)), expression_type(packet_type(pkt, name)){}
 };
 template <typename StreamT, template<typename> class FollowT, typename PacketT>
 StreamT& operator<<(StreamT& stream, const property_<FollowT, PacketT>& prop){
@@ -450,8 +518,6 @@ struct binary_expression: public expression_<packets::binary<typename L::packet_
     typedef typename R::packet_type right_packet_type;
     typedef packets::binary<typename L::packet_type, typename R::packet_type> packet_type;
     typedef expression_<packet_type> expression_type;
-    
-    const char* _op;
     
     binary_expression(const char* op, const L& left, const R& right): expression_type(packet_type(op, left._packet, right._packet)){}
 };
@@ -481,48 +547,160 @@ StreamT& operator<<(StreamT& stream, const serial_expression<L, R>& binex){
 }
 
 template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator&&(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("&&", leftex, rightex);
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator&&(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("&&", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator&&(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("&&", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
+template <typename L, typename R>
+binary_expression<expression_<L>, expression_<R>> operator||(const expression_<L>& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<L>, expression_<R>>("||", leftex, rightex);
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator||(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("||", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator||(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("||", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
+template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator+(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>("+", leftex, rightex);
 }
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator+(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("+", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator+(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("+", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
 template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator-(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>("-", leftex, rightex);
 }
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator-(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("-", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator-(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("-", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
 template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator*(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>("*", leftex, rightex);
 }
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator*(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("*", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator*(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("*", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
 template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator/(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>("/", leftex, rightex);
 }
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator/(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("/", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator/(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("/", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
 template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator==(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>("==", leftex, rightex);
 }
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator==(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("==", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator==(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("==", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
 template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator<=(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>("<=", leftex, rightex);
 }
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator<=(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("<=", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator<=(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("<=", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
 template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator>=(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>(">=", leftex, rightex);
 }
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator>=(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>(">=", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator>=(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>(">=", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
 template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator<(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>("<", leftex, rightex);
 }
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator<(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("<", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator<(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>("<", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
 template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator>(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>(">", leftex, rightex);
 }
-template <typename L, typename R>
-serial_expression<expression_<L>, expression_<R>> operator,(const expression_<L>& leftex, const expression_<R>& rightex){
-    return serial_expression<expression_<L>, expression_<R>>(leftex, rightex);
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator>(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>(">", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
 }
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<L>, bool> = true>
+binary_expression<expression_<packets::constant<L>>, expression_<R>> operator>(const L& leftex, const expression_<R>& rightex){
+    return binary_expression<expression_<packets::constant<L>>, expression_<R>>(">", expression_<packets::constant<L>>(packets::constant<L>(leftex)), rightex);
+}
+
 template <typename L, typename R>
 binary_expression<expression_<L>, expression_<R>> operator<<=(const expression_<L>& leftex, const expression_<R>& rightex){
     return binary_expression<expression_<L>, expression_<R>>("=", leftex, rightex);
+}
+template <typename L, typename R, std::enable_if_t<std::is_pod_v<R>, bool> = true>
+binary_expression<expression_<L>, expression_<packets::constant<R>>> operator<<=(const expression_<L>& leftex, const R& rightex){
+    return binary_expression<expression_<L>, expression_<packets::constant<R>>>("=", leftex, expression_<packets::constant<R>>(packets::constant<R>(rightex)));
+}
+
+template <typename L, typename R>
+serial_expression<expression_<L>, expression_<R>> operator,(const expression_<L>& leftex, const expression_<R>& rightex){
+    return serial_expression<expression_<L>, expression_<R>>(leftex, rightex);
 }
 
 /**
@@ -616,6 +794,70 @@ declaration_expression<assignable<FollowT>, const_> _const(const assignable<Foll
 template <template<typename> class FollowT=meta_void>
 declaration_expression<assignable<FollowT>, var_> _var(const assignable<FollowT>& assgn){
     return declaration_expression<assignable<FollowT>, var_>(assgn);
+}
+
+template <typename HeadT, typename BodyT>
+struct scope_expression: public expression_<packets::scope<HeadT, BodyT>>{
+    scope_expression(const char* name, const HeadT& head, const BodyT& body): expression_<packets::scope<HeadT, BodyT>>(packets::scope<HeadT, BodyT>(name, head, body)){}
+};
+template <typename BodyT>
+struct scope_expression<void, BodyT>: public expression_<packets::scope<void, BodyT>>{
+    scope_expression(const char* name, const BodyT& body): expression_<packets::scope<void, BodyT>>(packets::scope<void, BodyT>(name, body)){}
+};
+
+template <typename StreamT, typename HeadT, typename BodyT>
+StreamT& operator<<(StreamT& stream, const scope_expression<HeadT, BodyT>& pkt){
+    pkt.write(stream);
+    return stream;
+}
+
+template <typename ConditionT=void>
+struct labeled_block_{
+    typedef ConditionT condition_type;
+    
+    const char* _label;
+    condition_type _condition;
+    
+    labeled_block_(const char* label, const condition_type& condition): _label(label), _condition(condition){}
+    template <typename BodyT>
+    scope_expression<ConditionT, BodyT> operator[](const BodyT& body){
+        return scope_expression<ConditionT, BodyT>(_label, _condition, body);
+    }
+};
+template <>
+struct labeled_block_<void>{    
+    const char* _label;
+    
+    labeled_block_(const char* label): _label(label){}
+    template <typename BodyT>
+    scope_expression<void, BodyT> operator[](const BodyT& body){
+        return scope_expression<void, BodyT>(_label, body);
+    }
+};
+
+template <typename ConditionT>
+struct if_block: labeled_block_<ConditionT>{
+    if_block(const ConditionT& condition): labeled_block_<ConditionT>("if", condition){}
+};
+template <typename ConditionT=void>
+struct else_block: labeled_block_<ConditionT>{
+    else_block(const ConditionT& condition): labeled_block_<ConditionT>("else if", condition){}
+};
+template <>
+struct else_block<void>: labeled_block_<void>{
+    else_block(): labeled_block_<void>("else"){}
+};
+
+template <typename T>
+if_block<T> _if(const T& condition){
+    return if_block<T>(condition);
+}
+template <typename T>
+else_block<T> _else(const T& condition){
+    return else_block<T>(condition);
+}
+else_block<void> _else(){
+    return else_block<void>();
 }
 
 }

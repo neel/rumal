@@ -288,3 +288,195 @@ rumal::js::serial_expression<
         > 
     > 
 >
+
+x >= 1 && 2*x >= 1
+-------------------
+struct rumal::js::binary_expression<
+    rumal::js::expression_<
+        rumal::js::packets::binary<
+            rumal::js::packets::access<rumal::js::none_type>, 
+            rumal::js::packets::constant<int, true> 
+        > 
+    >, 
+    rumal::js::expression_<
+        rumal::js::packets::binary<
+            rumal::js::packets::binary<
+                rumal::js::packets::constant<int, true>, 
+                rumal::js::packets::access<rumal::js::none_type> 
+            >, 
+            rumal::js::packets::constant<int, true> 
+        > 
+    > 
+>
+
+
+rumal::js::_if(x >= 1 && 2*x >= 1)[
+    m0(1, 4.5), 
+    m0(1, 4.5).m1(4, 2.7),
+    m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
+],
+rumal::js::_else()[
+    m0(1, 4.5), 
+    m0(1, 4.5).m1(4, 2.7),
+    m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
+]
+--------------------------------------
+rumal::js::serial_expression<
+    rumal::js::expression_<
+        rumal::js::packets::scope<
+            rumal::js::binary_expression<
+                rumal::js::expression_<
+                    rumal::js::packets::binary<
+                        rumal::js::packets::access<rumal::js::none_type>, 
+                        rumal::js::packets::constant<int, true> 
+                    > 
+                >, 
+                rumal::js::expression_<
+                    rumal::js::packets::binary<
+                        rumal::js::packets::binary<
+                            rumal::js::packets::constant<int, true>, 
+                            rumal::js::packets::access<rumal::js::none_type> 
+                        >, 
+                        rumal::js::packets::constant<int, true> 
+                    > 
+                > 
+            >, 
+            rumal::js::serial_expression<
+                rumal::js::expression_<
+                    rumal::js::packets::serial<
+                        rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                        rumal::js::packets::call<
+                            rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                            int, 
+                            double
+                        > 
+                    > 
+                >, 
+                rumal::js::expression_<
+                    rumal::js::packets::access<
+                        rumal::js::packets::index<
+                            rumal::js::packets::call<
+                                rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                                int, 
+                                double, 
+                                char [3]
+                            >, 
+                            int
+                        > 
+                    > 
+                > 
+            > 
+        > 
+    >, 
+    rumal::js::expression_<
+        rumal::js::packets::scope<
+            void, 
+            rumal::js::serial_expression<
+                rumal::js::expression_<
+                    rumal::js::packets::serial<
+                        rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                        rumal::js::packets::call<
+                            rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                            int, 
+                            double
+                        > 
+                    > 
+                >, 
+                rumal::js::expression_<
+                    rumal::js::packets::access<
+                        rumal::js::packets::index<
+                            rumal::js::packets::call<
+                                rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                                int, 
+                                double, 
+                                char [3]
+                            >, 
+                            int
+                        > 
+                    > 
+                > 
+            > 
+        > 
+    > 
+>
+
+24 + m0(1, 4.5).m3(4, 2.7).m4 + 42 + "Hallo World",
+rumal::js::_if(x >= 1 && 2*x >= 1)[
+    m0(1, 4.5), 
+    m0(1, 4.5).m1(4, 2.7)
+],
+rumal::js::_else()[
+    m0(1, 4.5), 
+    m0(1, 4.5).m1(4, 2.7)
+]
+------------------------------------------
+rumal::js::serial_expression<
+    rumal::js::expression_<
+        rumal::js::packets::serial<
+            rumal::js::packets::binary<
+                rumal::js::packets::binary<
+                    rumal::js::packets::binary<
+                        rumal::js::packets::constant<int, true>, 
+                        rumal::js::packets::access<
+                            rumal::js::packets::call<
+                                rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                                int, 
+                                double
+                            > 
+                        > 
+                    >, 
+                    rumal::js::packets::constant<int, true> 
+                >, 
+                rumal::js::packets::constant<char [12], true> 
+            >, 
+            rumal::js::packets::scope<
+                rumal::js::binary_expression<
+                    rumal::js::expression_<
+                        rumal::js::packets::binary<
+                            rumal::js::packets::access<rumal::js::none_type>, 
+                            rumal::js::packets::constant<int, true> 
+                        > 
+                    >, 
+                    rumal::js::expression_<
+                        rumal::js::packets::binary<
+                            rumal::js::packets::binary<
+                                rumal::js::packets::constant<int, true>, 
+                                rumal::js::packets::access<rumal::js::none_type> 
+                            >, 
+                            rumal::js::packets::constant<int, true> 
+                        > 
+                    > 
+                >, 
+                rumal::js::serial_expression<
+                    rumal::js::expression_<
+                        rumal::js::packets::call<rumal::js::none_type, int, double> 
+                    >, 
+                    rumal::js::expression_<
+                        rumal::js::packets::call<
+                            rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                            int, 
+                            double
+                        > 
+                    > 
+                > 
+            > 
+        > 
+    >, 
+    rumal::js::expression_<
+        rumal::js::packets::scope<
+            void, 
+            rumal::js::serial_expression<
+                rumal::js::expression_<
+                    rumal::js::packets::call<rumal::js::none_type, int, double> 
+                >, 
+                rumal::js::expression_<
+                    rumal::js::packets::call<
+                        rumal::js::packets::call<rumal::js::none_type, int, double>, 
+                        int, 
+                        double
+                    > 
+                > 
+            > 
+        > 
+    > 
+>
