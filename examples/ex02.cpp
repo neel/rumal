@@ -125,5 +125,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
 //         ]
 //     ).xyz;
     
+    auto y = rumal::js::assignable<object2_>("y");
+    
+    std::cout <<( 
+        _const(x) <<= 2,
+        y <<= rumal::js::function(x, y <<= 1)[
+            x.m4(4, 2, 42.42)
+        ] 
+    )<< std::endl;
+    
+    std::cout <<( 
+        rumal::js::_for(x <<= 0, x < 1, x <<= x+1)[
+            x.m4(4, 2, 42.42)
+        ] 
+    )<< std::endl;
+    
     return 0;
 }

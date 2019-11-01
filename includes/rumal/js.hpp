@@ -749,6 +749,51 @@ namespace packets{
     struct assignment<assignable<FollowT>, RightT>: public binary<assignable<FollowT>, RightT>{
         assignment(const assignable<FollowT>& lhs, const RightT& rhs): binary<assignable<FollowT>, RightT>("=", lhs, rhs){}
     };
+    
+    template <typename... A>
+    struct arguments{
+        boost::hana::tuple<A...> _args;
+        
+        arguments(A... a): _args(a...){}
+        template <typename StreamT>
+        StreamT& write(StreamT& stream) const{
+            unsigned short int counter = 0;
+            boost::hana::for_each(_args, [&stream, &counter](const auto& x){
+                if(counter++){
+                    stream << ",";
+                }
+                stream << x;
+            });
+            return stream;
+        }
+    };
+    template <typename StreamT, typename... A>
+    StreamT& operator<<(StreamT& stream, const arguments<A...>& var){
+        var.write(stream);
+        return stream;
+    }
+    template <typename... A>
+    struct for_arguments{
+        boost::hana::tuple<A...> _args;
+        
+        for_arguments(A... a): _args(a...){}
+        template <typename StreamT>
+        StreamT& write(StreamT& stream) const{
+            unsigned short int counter = 0;
+            boost::hana::for_each(_args, [&stream, &counter](const auto& x){
+                if(counter++){
+                    stream << ";";
+                }
+                stream << x;
+            });
+            return stream;
+        }
+    };
+    template <typename StreamT, typename... A>
+    StreamT& operator<<(StreamT& stream, const for_arguments<A...>& var){
+        var.write(stream);
+        return stream;
+    }
 }
 
 struct let_{
@@ -848,6 +893,10 @@ template <>
 struct else_block<void>: labeled_block_<void>{
     else_block(): labeled_block_<void>("else"){}
 };
+template <typename ConditionT>
+struct while_block: labeled_block_<ConditionT>{
+    while_block(const ConditionT& condition): labeled_block_<ConditionT>("while", condition){}
+};
 
 template <typename T>
 if_block<T> _if(const T& condition){
@@ -859,6 +908,28 @@ else_block<T> _else(const T& condition){
 }
 else_block<void> _else(){
     return else_block<void>();
+}
+template <typename T>
+while_block<T> _while(const T& condition){
+    return while_block<T>(condition);
+}
+
+template <typename... ArgsT>
+struct function_block: labeled_block_<packets::arguments<ArgsT...>>{
+    function_block(const ArgsT&... args): labeled_block_<packets::arguments<ArgsT...>>("function", packets::arguments(args...)){}
+};
+template <typename... T>
+function_block<T...> function(const T&... condition){
+    return function_block<T...>(condition...);
+}
+
+template <typename... ArgsT>
+struct for_block: labeled_block_<packets::for_arguments<ArgsT...>>{
+    for_block(const ArgsT&... args): labeled_block_<packets::for_arguments<ArgsT...>>("for", packets::for_arguments(args...)){}
+};
+template <typename... T>
+for_block<T...> _for(const T&... condition){
+    return for_block<T...>(condition...);
 }
 
 }
