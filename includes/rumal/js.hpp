@@ -27,6 +27,7 @@
 #ifndef RUMAL_JS_H
 #define RUMAL_JS_H
 
+#include <type_traits>
 #include <boost/hana/tuple.hpp>
 
 namespace rumal{
