@@ -64,11 +64,11 @@ struct m0_: rumal::js::callable_<m0_, object1_>{
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     fn_ fn;
-    std::cout << fn << std::endl;
+//     std::cout << fn << std::endl;
     std::cout << fn(1, 2.5) << std::endl;
-    
+
     m0_ m0;
-    std::cout << m0 << std::endl;
+//     std::cout << m0 << std::endl;
     std::cout << m0(1, 4.5) << std::endl;
     std::cout << m0(1, 4.5).m1(4, 2.7) << std::endl;
     std::cout << m0(1, 4.5).m3(4, 2.7) << std::endl;
@@ -91,41 +91,42 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     std::cout << x.m4(4, 2, 42.42) << std::endl;
     std::cout << x.m4 << std::endl;
     std::cout << m0(1, 4.5).m3(4, 2.7).m4 << std::endl;
-    
+
     std::cout << (24 + m0(1, 4.5).m3(4, 2.7).m4 + 42 + "Hallo World")<< std::endl;
-    
+
     std::cout << (
         24 + m0(1, 4.5).m3(4, 2.7).m4 + 42 + "Hallo World",
         rumal::js::_if(x >= 1 && 2*x >= 1)[
-            m0(1, 4.5), 
+            m0(1, 4.5),
             m0(1, 4.5).m1(4, 2.7),
             m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
         ],
+        24 + m0(1, 4.5).m3(4, 2.7).m4 + 42 + "Hallo World",
         rumal::js::_else(x < 0.5)[
-            m0(1, 4.5), 
+            m0(1, 4.5),
             m0(1, 4.5).m1(4, 2.7),
             m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
         ],
         rumal::js::_else()[
-            m0(1, 4.5), 
+            m0(1, 4.5),
             m0(1, 4.5).m1(4, 2.7),
             m0(1, 4.5).m3(4, 2.7, "hi")[1].o4
         ]
     ) << std::endl;
-       
+
     auto y = rumal::js::assignable<object2_>("y");
-    
-    std::cout <<( 
+
+    std::cout <<(
         _const(x) <<= 2,
         y <<= rumal::js::function(x, y <<= 1)[
             x.m4(4, 2, 42.42)
-        ] 
+        ]
     )<< std::endl;
-    
-    std::cout <<( 
+
+    std::cout <<(
         rumal::js::_for(x <<= 0, x < 1, x += 1)[
             x.m4(4, 2, 42.42)
-        ] 
+        ]
     )<< std::endl;
     
     using namespace rumal::js;
@@ -135,6 +136,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
             fn('a'),
             m0("a"),
             fn(12),
+            fn('a'),
             function(y)[
                 fn(1),
                 m0(2),
