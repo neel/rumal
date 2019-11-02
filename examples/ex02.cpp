@@ -139,9 +139,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
                 fn(1),
                 m0(2),
                 fn(3)
-            ],
-            fn(12),
+            ]
+        ]
+    ) << std::endl;
+    
+    (
+        function(x)[
             fn('a'),
+            m0("a"),
+            fn(12),
             function(y)[
                 fn(1),
                 m0(2),
@@ -158,9 +164,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
                 fn(3)
             ]
         ]
-    ) << std::endl;
+    ).xyz;
     
-
-       
     return 0;
 }
