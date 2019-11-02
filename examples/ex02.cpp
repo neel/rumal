@@ -1,6 +1,7 @@
 #include <iostream>
 #include <rumal/rumal.hpp>
 #include <boost/lexical_cast.hpp>
+#include <rumal/dom.hpp>
 
 struct fn_: rumal::js::callable_<fn_>{
     fn_(): rumal::js::callable_<fn_>("fn"){}
@@ -62,7 +63,7 @@ struct m0_: rumal::js::callable_<m0_, object1_>{
 };
 
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){  
     fn_ fn;
     std::cout << fn << std::endl;
     std::cout << fn(1, 2.5) << std::endl;
