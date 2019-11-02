@@ -164,7 +164,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
                 fn(3)
             ]
         ]
-    ).xyz;
+    );
     
     return 0;
 }
