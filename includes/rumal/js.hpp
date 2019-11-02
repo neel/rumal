@@ -29,7 +29,6 @@
 
 #include <type_traits>
 #include <boost/hana/tuple.hpp>
-#include <boost/lexical_cast.hpp>
 
 #define RUMAL_JS_INDENTATION_TAB    "\t"
 #define RUMAL_JS_PARENTHESIS_OPEN   "("
