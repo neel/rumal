@@ -139,9 +139,28 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
                 fn(1),
                 m0(2),
                 fn(3)
+            ],
+            fn(12),
+            fn('a'),
+            function(y)[
+                fn(1),
+                m0(2),
+                function(y)[
+                    fn(1),
+                    m0(2),
+                    function(y)[
+                        fn(1),
+                        m0(2),
+                        fn(3)
+                    ],
+                    fn(3)
+                ],
+                fn(3)
             ]
         ]
     ) << std::endl;
     
+
+       
     return 0;
 }

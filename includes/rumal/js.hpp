@@ -30,8 +30,31 @@
 #include <type_traits>
 #include <boost/hana/tuple.hpp>
 
+#define RUMAL_JS_INDENTATION_TAB    "\t"
+#define RUMAL_JS_PARENTHESIS_OPEN   "("
+#define RUMAL_JS_PARENTHESIS_CLOSE  ")"
+#define RUMAL_JS_CURLYBRACE_OPEN    "{"
+#define RUMAL_JS_CURLYBRACE_CLOSE   "}"
+#define RUMAL_JS_SQUAREBRACE_OPEN   "["
+#define RUMAL_JS_SQUAREBRACE_CLOSE  "]"
+#define RUMAL_JS_QUOTE_SINGLE       "'"
+#define RUMAL_JS_QUOTE_DOUBLE       "\""
+#define RUMAL_JS_NEWLINE            "\n"
+#define RUMAL_JS_DOT                "."
+#define RUMAL_JS_COMMA              ","
+#define RUMAL_JS_SEMICOLON          ";"
+#define RUMAL_JS_SPACE              " "
+
 namespace rumal{
 namespace js{
+    
+template <typename StreamT>
+StreamT& indent(StreamT& stream, int level){
+    for(int i =0; i < level; ++i){
+        stream << RUMAL_JS_INDENTATION_TAB;
+    }
+    return stream;
+}
 
 template <typename T>
 struct value_wrapper_{
@@ -60,7 +83,7 @@ struct value_wrapper_<char[N]>{
     value_wrapper_(const value_type& val): _val(val){}    
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
-        stream << "'" << _val << "'";
+        stream << RUMAL_JS_QUOTE_DOUBLE << _val << RUMAL_JS_QUOTE_DOUBLE;
         return stream;
     }
 };
@@ -74,7 +97,20 @@ struct value_wrapper_<const char*>{
     explicit value_wrapper_(const value_type& val): _val(val){}    
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
-        stream << "'" << _val << "'";
+        stream << RUMAL_JS_QUOTE_DOUBLE << _val << RUMAL_JS_QUOTE_DOUBLE;
+        return stream;
+    }
+};
+template <>
+struct value_wrapper_<char>{
+    typedef char value_type;
+    
+    value_type _val;
+    
+    explicit value_wrapper_(const value_type& val): _val(val){}    
+    template <typename StreamT>
+    StreamT& write(StreamT& stream) const{
+        stream << RUMAL_JS_QUOTE_SINGLE << _val << RUMAL_JS_QUOTE_SINGLE;
         return stream;
     }
 };
@@ -88,7 +124,7 @@ struct value_wrapper_<std::string>{
     explicit value_wrapper_(const value_type& val): _val(val){}    
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
-        stream << "\"" << _val << "\"";
+        stream << RUMAL_JS_QUOTE_DOUBLE << _val << RUMAL_JS_QUOTE_DOUBLE;
         return stream;
     }
 };
@@ -109,7 +145,7 @@ template <typename T>
 struct dot{
     template <typename StreamT>
     static StreamT& write(StreamT& stream){
-        stream << ".";
+        stream << RUMAL_JS_DOT;
         return stream;
     }
 };
@@ -124,8 +160,9 @@ struct expression_{
     explicit expression_(const packet_type& pkt): _packet(pkt){}
     expression_(const self_type& other): _packet(other._packet){}
     template <typename StreamT>
-    StreamT& write(StreamT& stream) const{
-        stream << _packet;
+    StreamT& write(StreamT& stream, int level = 0) const{
+        // stream << level;
+        _packet.write(stream, level);
         return stream;
     }
 };
@@ -150,26 +187,21 @@ namespace packets{
             return *this;
         }
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
-            stream << _parent;
+        StreamT& write(StreamT& stream, int level = 0) const{
+            _parent.write(stream, level);
             dot<parent_type>::write(stream);
-            stream << _name << "(";
+            stream << _name << RUMAL_JS_PARENTHESIS_OPEN;
             unsigned short int counter = 0;
             boost::hana::for_each(_args, [&stream, &counter](const auto& x){
                 if(counter++){
-                    stream << ",";
+                    stream << RUMAL_JS_COMMA;
                 }
                 stream << value_wrapper_(x);
             });
-            stream << ")";
+            stream << RUMAL_JS_PARENTHESIS_CLOSE;
             return stream;
         }
     };
-    template <typename StreamT, typename... T>
-    StreamT& operator<<(StreamT& stream, const call<T...>& packet){
-        packet.write(stream);
-        return stream;
-    }
     template <typename ParentT>
     struct access{
         typedef ParentT parent_type;
@@ -186,18 +218,13 @@ namespace packets{
             return *this;
         }
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
-            stream << _parent;
+        StreamT& write(StreamT& stream, int level = 0) const{
+            _parent.write(stream, level);
             dot<parent_type>::write(stream);
             stream << _name ;
             return stream;
         }
     };
-    template <typename StreamT, typename ParentT>
-    StreamT& operator<<(StreamT& stream, const access<ParentT>& pkt){
-        pkt.write(stream);
-        return stream;
-    }
     template <typename ParentT, typename T>
     struct index{
         typedef ParentT parent_type;
@@ -215,17 +242,12 @@ namespace packets{
             return *this;
         }
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
-            stream << _parent;
-            stream << "[" << value_wrapper_(_value) << "]";
+        StreamT& write(StreamT& stream, int level = 0) const{
+            _parent.write(stream, level);
+            stream << RUMAL_JS_SQUAREBRACE_OPEN << value_wrapper_(_value) << RUMAL_JS_SQUAREBRACE_CLOSE;
             return stream;
         }
     };
-    template <typename StreamT, typename ParentT, typename T>
-    StreamT& operator<<(StreamT& stream, const index<ParentT, T>& idx_pkt){
-        idx_pkt.write(stream);
-        return stream;
-    }
     template <typename LeftT, typename RightT>
     struct binary{
         typedef LeftT left_packet_type;
@@ -237,22 +259,28 @@ namespace packets{
         
         binary(const char* op, const left_packet_type& left, const right_packet_type& right): _op(op), _left(left), _right(right){}
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
-            stream << _left  << " " << _op << " " << _right;
+        StreamT& write(StreamT& stream, int level = 0) const{
+            _left.write(stream, level);
+            stream << RUMAL_JS_SPACE << _op << RUMAL_JS_SPACE;
+            _right.write(stream, level);
             return stream;
         }
     };
-    template <typename StreamT, typename L, typename R>
-    StreamT& operator<<(StreamT& stream, const binary<L, R>& pkt){
-        pkt.write(stream);
-        return stream;
-    }
     
     template <typename T>
     struct print_terminal{
         enum {value = true};
     };
-   
+    template <typename P>
+    struct print_terminal<expression_<P>>{
+        enum {value = print_terminal<P>::value};
+    };
+    /**
+     * @brief the first serial in the serial chain
+     *
+     * @tparam LeftT
+     * @tparam RightT
+     */
     template <typename LeftT, typename RightT>
     struct serial{
         typedef LeftT left_packet_type;
@@ -263,19 +291,52 @@ namespace packets{
         
         serial(const left_packet_type& left, const right_packet_type& right): _left(left), _right(right){}
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
-            stream << _left;
+        StreamT& write(StreamT& stream, int level = 0) const{
+            indent(stream, level);
+            _left.write(stream, level);
             if(print_terminal<left_packet_type>::value)
-                stream << ";" ;
-            stream << _right;
+                stream << RUMAL_JS_SEMICOLON << RUMAL_JS_NEWLINE ;
+            indent(stream, level);
+            _right.write(stream, level);
             return stream;
         }
     };
-    template <typename StreamT, typename L, typename R>
-    StreamT& operator<<(StreamT& stream, const serial<L, R>& pkt){
-        pkt.write(stream);
-        return stream;
+
+    namespace helper{
+        template <typename T>
+        struct scope_should_indent{
+            enum {value = true};
+        };
     }
+
+    /**
+     * @brief from second to last serial in the serial chain
+     *
+     * @tparam L
+     * @tparam R
+     * @tparam RightT
+     */
+    template <typename L, typename R, typename RightT>
+    struct serial<serial<L, R>, RightT>{
+        typedef serial<L, R> left_packet_type;
+        typedef RightT right_packet_type;
+
+        left_packet_type  _left;
+        right_packet_type _right;
+
+        serial(const left_packet_type& left, const right_packet_type& right): _left(left), _right(right){}
+        template <typename StreamT>
+        StreamT& write(StreamT& stream, int level = 0) const{
+            // do not indent because _left is also a serial
+            _left.write(stream, level);
+            if(print_terminal<left_packet_type>::value)
+                stream << RUMAL_JS_SEMICOLON << RUMAL_JS_NEWLINE ;
+            indent(stream, level);
+            _right.write(stream, level);
+            return stream;
+        }
+    };
+
     template <typename HeadT, typename BodyT>
     struct scope{
         typedef HeadT head_type;
@@ -287,10 +348,24 @@ namespace packets{
         
         scope(const char* name, const head_type& head, const body_type& body): _head(head), _body(body), _name(name){}
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
-            stream << _name << "(" << _head << ")" << "{" << _body << ";" << "}";
+        StreamT& write(StreamT& stream, int level = 0) const{
+            stream << _name << RUMAL_JS_PARENTHESIS_OPEN;
+            _head.write(stream, 0);
+            stream << RUMAL_JS_PARENTHESIS_CLOSE << RUMAL_JS_CURLYBRACE_OPEN << RUMAL_JS_NEWLINE;
+            if(helper::scope_should_indent<body_type>::value)
+                indent(stream, level+1);
+            _body.write(stream, level+1);
+            if(print_terminal<body_type>::value)
+                stream << RUMAL_JS_SEMICOLON; 
+            stream << RUMAL_JS_NEWLINE;
+            indent(stream, level);
+            stream << RUMAL_JS_CURLYBRACE_CLOSE << RUMAL_JS_NEWLINE;
             return stream;
         }
+    };
+    template <typename H, typename B>
+    struct print_terminal<packets::scope<H, B>>{
+        enum {value = false};
     };
     template <typename BodyT>
     struct scope<void, BodyT>{
@@ -301,25 +376,18 @@ namespace packets{
         
         scope(const char* name, const body_type& body): _body(body), _name(name){}
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
-            stream << _name << "{" << _body << ";" << "}";
+        StreamT& write(StreamT& stream, int level = 0) const{
+            stream << _name << RUMAL_JS_CURLYBRACE_OPEN << RUMAL_JS_NEWLINE;
+            if(helper::scope_should_indent<body_type>::value)
+                indent(stream, level+1);
+            _body.write(stream, level +1);
+            if(print_terminal<body_type>::value)
+                stream << RUMAL_JS_SEMICOLON; 
+            stream << RUMAL_JS_NEWLINE << RUMAL_JS_CURLYBRACE_CLOSE << RUMAL_JS_NEWLINE;
             return stream;
         }
     };
-    template <typename H1, typename B1>
-    struct print_terminal<scope<H1, B1>>{
-        enum {value = false};
-    };
-    template <typename T, typename H1, typename B1>
-    struct print_terminal<serial<T, scope<H1, B1>>>{
-        enum {value = false};
-    };
-    template <typename StreamT, typename H, typename B>
-    StreamT& operator<<(StreamT& stream, const scope<H, B>& pkt){
-        pkt.write(stream);
-        return stream;
-    }
-    template <typename T, std::enable_if_t<std::is_pod_v<T>, bool> = true>
+    template <typename T, typename std::enable_if<std::is_pod<T>::value, bool>::type = true>
     struct constant{
         typedef T value_type;
         
@@ -327,19 +395,19 @@ namespace packets{
         
         constant(const value_type& val): _val(val){}
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
+        StreamT& write(StreamT& stream, [[maybe_unused]] int level = 0) const{
             stream << value_wrapper_(_val);
             return stream;
         }
     };
-    template <typename StreamT, typename T>
-    StreamT& operator<<(StreamT& stream, const constant<T>& pkt){
-        pkt.write(stream);
-        return stream;
-    }
 }
 
-struct none_type{};
+struct none_type{
+    template <typename StreamT>
+    StreamT& write(StreamT& stream, [[maybe_unused]] int level = 0) const{
+        return stream;
+    }
+};
 template <typename StreamT>
 StreamT& operator<<(StreamT& stream, const none_type& /*none*/){
     return stream;
@@ -545,6 +613,25 @@ template <typename StreamT, typename L, typename R>
 StreamT& operator<<(StreamT& stream, const serial_expression<L, R>& binex){
     binex.write(stream);
     return stream;
+}
+
+namespace packets {
+namespace helper {
+    template<typename L, typename R>
+    struct scope_should_indent<serial_expression<L, R>> {
+        enum {
+            value = false
+        };
+    };
+}
+template <typename L, typename R>
+struct print_terminal<serial_expression<L, R>>{
+    enum {value = print_terminal<R>::value};
+};
+template <typename L, typename R>
+struct print_terminal<packets::serial<L, R>>{
+    enum {value = print_terminal<R>::value};
+};
 }
 
 template <typename L, typename R>
@@ -795,17 +882,12 @@ namespace packets{
         
         declaration(const packets::access<none_type>& access): _access(access){}
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
-            stream << AccessT::specifier << " ";
-            stream << _access;
+        StreamT& write(StreamT& stream, [[maybe_unused]] int level = 0) const{
+            stream << AccessT::specifier << RUMAL_JS_SPACE;
+            _access.write(stream);
             return stream;
         }
     };
-    template <typename StreamT, typename AccessT>
-    StreamT& operator<<(StreamT& stream, const declaration<AccessT>& var){
-        var.write(stream);
-        return stream;
-    }
     
     template <typename AssignmentT, typename RightT>
     struct assignment;
@@ -821,44 +903,34 @@ namespace packets{
         
         arguments(A... a): _args(a...){}
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
+        StreamT& write(StreamT& stream, [[maybe_unused]] int level = 0) const{
             unsigned short int counter = 0;
             boost::hana::for_each(_args, [&stream, &counter](const auto& x){
                 if(counter++){
-                    stream << ",";
+                    stream << RUMAL_JS_COMMA;
                 }
                 stream << x;
             });
             return stream;
         }
     };
-    template <typename StreamT, typename... A>
-    StreamT& operator<<(StreamT& stream, const arguments<A...>& var){
-        var.write(stream);
-        return stream;
-    }
     template <typename... A>
     struct for_arguments{
         boost::hana::tuple<A...> _args;
         
         for_arguments(A... a): _args(a...){}
         template <typename StreamT>
-        StreamT& write(StreamT& stream) const{
+        StreamT& write(StreamT& stream, [[maybe_unused]] int level = 0) const{
             unsigned short int counter = 0;
             boost::hana::for_each(_args, [&stream, &counter](const auto& x){
                 if(counter++){
-                    stream << ";";
+                    stream << RUMAL_JS_SEMICOLON;
                 }
                 stream << x;
             });
             return stream;
         }
     };
-    template <typename StreamT, typename... A>
-    StreamT& operator<<(StreamT& stream, const for_arguments<A...>& var){
-        var.write(stream);
-        return stream;
-    }
 }
 
 struct let_{
