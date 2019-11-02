@@ -522,3 +522,34 @@ rumal::js::scope_expression<
         > 
     > 
 >
+
+rumal::js::_for(x <<= 0, x < 1, x += 1)[
+    x.m4(4, 2, 42.42)
+]
+----------------------------------------------
+rumal::js::scope_expression<
+    rumal::js::packets::for_arguments<
+        rumal::js::binary_expression<
+            rumal::js::expression_<rumal::js::packets::access<rumal::js::none_type> >, 
+            rumal::js::expression_<rumal::js::packets::constant<int, true> > 
+        >, 
+        rumal::js::binary_expression<
+            rumal::js::expression_<rumal::js::packets::access<rumal::js::none_type> >, 
+            rumal::js::expression_<rumal::js::packets::constant<int, true> > 
+        >, 
+        rumal::js::binary_expression<
+            rumal::js::expression_<rumal::js::packets::access<rumal::js::none_type> >, 
+            rumal::js::expression_<rumal::js::packets::constant<int, true> > 
+        > 
+    >, 
+    rumal::js::returned_<
+        rumal::js::packets::call<
+            rumal::js::packets::access<rumal::js::none_type>, 
+            int, 
+            int, 
+            double
+        >, 
+        void
+    >
+>
+

@@ -64,11 +64,14 @@ struct m0_: rumal::js::callable_<m0_, object1_>{
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     fn_ fn;
-//     std::cout << fn << std::endl;
-    std::cout << fn(1, 2.5) << std::endl;
-
     m0_ m0;
-//     std::cout << m0 << std::endl;
+    auto x = rumal::js::assignable<object2_>("x");
+    auto y = rumal::js::assignable<object2_>("y");
+    rumal::js::assignable<> z("z");
+    
+    std::cout << fn << std::endl;
+    std::cout << fn(1, 2.5) << std::endl;
+    std::cout << m0 << std::endl;
     std::cout << m0(1, 4.5) << std::endl;
     std::cout << m0(1, 4.5).m1(4, 2.7) << std::endl;
     std::cout << m0(1, 4.5).m3(4, 2.7) << std::endl;
@@ -84,7 +87,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     std::cout << m0(1, 4.5).m3(4, 2.7, "hi")[1].o4.m5(42) - m0(1, 4.5).m3(4, 2.7, "hi")[1].o4 + fn * m0 << std::endl;
     std::cout << (m0(1, 4.5) , m0(1, 4.5).m1(4, 2.7) , m0(1, 4.5).m3(4, 2.7, "hi")[1].o4) << std::endl;
 
-    auto x = rumal::js::assignable<object2_>("x");
     std::cout << x << std::endl;
     std::cout << _const(x) << std::endl;
     std::cout << (_let(x) <<= m0(1, 4.5)) << std::endl;
@@ -114,8 +116,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
         ]
     ) << std::endl;
 
-    auto y = rumal::js::assignable<object2_>("y");
-
     std::cout <<(
         _const(x) <<= 2,
         y <<= rumal::js::function(x, y <<= 1)[
@@ -130,20 +130,36 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv){
     )<< std::endl;
     
     using namespace rumal::js;
-    assignable<> z("z");
     std::cout << (
         function(x)[
             fn('a'),
             m0("a"),
+            function(y)[
+                fn(1),
+                m0(2),
+                fn(3)
+            ],
             fn(12),
             fn('a'),
             function(y)[
                 fn(1),
                 m0(2),
+                function(y)[
+//                     fn(1),
+//                     m0(2),
+                    function(y)[
+                        fn(1),
+                        m0(2),
+                        fn(3)
+                    ],
+                    fn(3)
+                ],
                 fn(3)
             ]
         ]
     ) << std::endl;
+    
+
        
     return 0;
 }

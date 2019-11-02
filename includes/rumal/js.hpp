@@ -27,7 +27,6 @@
 #ifndef RUMAL_JS_H
 #define RUMAL_JS_H
 
-#include "indented.h"
 #include <type_traits>
 #include <boost/hana/tuple.hpp>
 #include <boost/lexical_cast.hpp>
@@ -245,7 +244,10 @@ namespace packets{
     struct print_terminal{
         enum {value = true};
     };
-
+    template <typename P>
+    struct print_terminal<expression_<P>>{
+        enum {value = print_terminal<P>::value};
+    };
     /**
      * @brief the first serial in the serial chain
      *
@@ -263,7 +265,8 @@ namespace packets{
         serial(const left_packet_type& left, const right_packet_type& right): _left(left), _right(right){}
         template <typename StreamT>
         StreamT& write(StreamT& stream, int level = 0) const{
-            _left.write(stream, 0);
+            indent(stream, level);
+            _left.write(stream, level);
             if(print_terminal<left_packet_type>::value)
                 stream << ";" << "\n" ;
             indent(stream, level);
@@ -273,14 +276,6 @@ namespace packets{
     };
 
     namespace helper{
-        template <typename T>
-        struct serial_should_indent{
-            enum {value = true};
-        };
-        template <typename L, typename R, typename RightT>
-        struct serial_should_indent<serial<serial<L, R>, RightT>>{
-            enum {value = false};
-        };
         template <typename T>
         struct scope_should_indent{
             enum {value = true};
@@ -305,8 +300,7 @@ namespace packets{
         serial(const left_packet_type& left, const right_packet_type& right): _left(left), _right(right){}
         template <typename StreamT>
         StreamT& write(StreamT& stream, int level = 0) const{
-            if(helper::serial_should_indent<left_packet_type>::value)
-                indent(stream, level);
+            // do not indent because _left is also a serial
             _left.write(stream, level);
             if(print_terminal<left_packet_type>::value)
                 stream << ";" << "\n" ;
@@ -334,11 +328,17 @@ namespace packets{
             if(helper::scope_should_indent<body_type>::value)
                 indent(stream, level+1);
             _body.write(stream, level+1);
-            stream << ";" << "\n";
+            if(print_terminal<body_type>::value)
+                stream << ";"; 
+            stream << "\n";
             indent(stream, level);
             stream << "}" << "\n";
             return stream;
         }
+    };
+    template <typename H, typename B>
+    struct print_terminal<packets::scope<H, B>>{
+        enum {value = false};
     };
     template <typename BodyT>
     struct scope<void, BodyT>{
@@ -354,19 +354,13 @@ namespace packets{
             if(helper::scope_should_indent<body_type>::value)
                 indent(stream, level+1);
             _body.write(stream, level +1);
-            stream << ";" << "\n" << "}" << "\n";
+            if(print_terminal<body_type>::value)
+                stream << ";"; 
+            stream << "\n" << "}" << "\n";
             return stream;
         }
     };
-    template <typename H1, typename B1>
-    struct print_terminal<scope<H1, B1>>{
-        enum {value = false};
-    };
-    template <typename T, typename H1, typename B1>
-    struct print_terminal<serial<T, scope<H1, B1>>>{
-        enum {value = false};
-    };
-    template <typename T, std::enable_if_t<std::is_pod_v<T>, bool> = true>
+    template <typename T, typename std::enable_if<std::is_pod<T>::value, bool>::type = true>
     struct constant{
         typedef T value_type;
         
@@ -595,14 +589,22 @@ StreamT& operator<<(StreamT& stream, const serial_expression<L, R>& binex){
 }
 
 namespace packets {
-    namespace helper {
-        template<typename L, typename R>
-        struct scope_should_indent<serial_expression<L, R>> {
-            enum {
-                value = false
-            };
+namespace helper {
+    template<typename L, typename R>
+    struct scope_should_indent<serial_expression<L, R>> {
+        enum {
+            value = false
         };
-    }
+    };
+}
+template <typename L, typename R>
+struct print_terminal<serial_expression<L, R>>{
+    enum {value = print_terminal<R>::value};
+};
+template <typename L, typename R>
+struct print_terminal<packets::serial<L, R>>{
+    enum {value = print_terminal<R>::value};
+};
 }
 
 template <typename L, typename R>
