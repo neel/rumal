@@ -1,2 +1,4 @@
 build
 *.kdev*
+cmake-build-debug
+.idea

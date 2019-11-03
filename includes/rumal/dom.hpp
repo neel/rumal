@@ -24,161 +24,181 @@
  * DAMAGE. 
  */
 
-#ifndef RUMAL_JS_DOM_H
-#define RUMAL_JS_DOM_H
-
-#define RUMAL_JS_DECLARE_CALLABLE(name)                                         \
-    struct name##_: rumal::js::callable_<name##_>{                              \
-        name##_(): rumal::js::callable_<name##_>(#name){}                       \
-    };
-#define RUMAL_JS_DECLARE_RETURNING_CALLABLE(name, follow)                       \
-    struct name##_: rumal::js::callable_<name##_, follow>{                      \
-        name##_(): rumal::js::callable_<name##_, follow>(#name){}               \
-    };
-#define RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(name)                               \
-    template <template<typename> class FollowT>                                 \
-    struct name##_: rumal::js::callable_<name##_<FollowT>, FollowT>{            \
-        name##_(): rumal::js::callable_<name##_<FollowT>, FollowT>(#name){}     \
-    };
+#ifndef RUMAL_JS_DOMS_H
+#define RUMAL_JS_DOMS_H
 
 #include "js.hpp"
+#include "types.hpp"
 
 namespace rumal{
 namespace js{
-    
-namespace types{
-template <typename T>
-struct terminal_{
-    
-};
-namespace Number_{
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(parseInt)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(parseFloat)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(toFixed)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(toPrecision)
-    RUMAL_JS_DECLARE_CALLABLE(isNaN)
-    RUMAL_JS_DECLARE_CALLABLE(isFinite)
-    RUMAL_JS_DECLARE_CALLABLE(isInteger)
-    RUMAL_JS_DECLARE_CALLABLE(isSafeInteger)
-}
-template <typename T>
-struct Number{
-    rumal::js::property_<Number, T> EPSILON;
-    rumal::js::property_<Number, T> MAX_SAFE_INTEGER;
-    rumal::js::property_<Number, T> MAX_VALUE;
-    rumal::js::property_<Number, T> MIN_SAFE_INTEGER;
-    rumal::js::property_<Number, T> MIN_VALUE;
-    rumal::js::property_<Number, T> NaN;
-    rumal::js::property_<Number, T> NEGATIVE_INFINITY;
-    rumal::js::property_<Number, T> POSITIVE_INFINITY;
-    rumal::js::method_<Number_::isNaN_, T> isNAN;
-    rumal::js::method_<Number_::isFinite_, T> isFinite;
-    rumal::js::method_<Number_::isInteger_, T> isInteger;
-    rumal::js::method_<Number_::isSafeInteger_, T> isSafeInteger;
-    rumal::js::method_<Number_::parseFloat_<Number>, T> parseFloat;
-    rumal::js::method_<Number_::parseInt_<Number>, T> parseInt;
-    rumal::js::method_<Number_::toFixed_<Number>, T> toFixed;
-    rumal::js::method_<Number_::toPrecision_<Number>, T> toPrecision;
-};
-namespace Array_{
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(fill)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(reverse)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(sort)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(concat)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(join)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(slice)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(filter)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(forEach)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(map)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(reduce)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(reduceRight)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(values)
-    RUMAL_JS_DECLARE_CALLABLE(pop)
-    RUMAL_JS_DECLARE_CALLABLE(push)
-    RUMAL_JS_DECLARE_CALLABLE(shift)
-    RUMAL_JS_DECLARE_CALLABLE(splice)
-    RUMAL_JS_DECLARE_CALLABLE(unshift)
-    RUMAL_JS_DECLARE_CALLABLE(includes)
-    RUMAL_JS_DECLARE_CALLABLE(every)
-    RUMAL_JS_DECLARE_CALLABLE(find)
-    RUMAL_JS_DECLARE_CALLABLE(some)
-    RUMAL_JS_DECLARE_RETURNING_CALLABLE(indexOf, Number)
-    RUMAL_JS_DECLARE_RETURNING_CALLABLE(lastIndexOf, Number)
-    RUMAL_JS_DECLARE_RETURNING_CALLABLE(findIndex, Number)
-}
-template <typename T, template<typename> class FollowT=terminal_>
-struct Array: rumal::js::iterable_<T>{
-    rumal::js::property_<Number, T> length;
-    rumal::js::method_<Array_::fill_<Array>, T> fill;
-    rumal::js::method_<Array_::reverse_<Array>, T> reverse;
-    rumal::js::method_<Array_::sort_<Array>, T> sort;
-    rumal::js::method_<Array_::concat_<Array>, T> concat;
-    rumal::js::method_<Array_::join_<Array>, T> join;
-    rumal::js::method_<Array_::slice_<Array>, T> slice;
-    rumal::js::method_<Array_::filter_<Array>, T> filter;
-    rumal::js::method_<Array_::forEach_<Array>, T> forEach;
-    rumal::js::method_<Array_::map_<Array>, T> map;
-    rumal::js::method_<Array_::reduce_<Array>, T> reduce;
-    rumal::js::method_<Array_::reduceRight_<Array>, T> reduceRight;
-    rumal::js::method_<Array_::values_<Array>, T> values;
-    rumal::js::method_<Array_::pop_, T> pop;
-    rumal::js::method_<Array_::push_, T> push;
-    rumal::js::method_<Array_::shift_, T> shift;
-    rumal::js::method_<Array_::splice_, T> splice;
-    rumal::js::method_<Array_::unshift_, T> unshift;
-    rumal::js::method_<Array_::includes_, T> includes;
-    rumal::js::method_<Array_::every_, T> every;
-    rumal::js::method_<Array_::find_, T> find;
-    rumal::js::method_<Array_::some_, T> some;
-
-};
-
-namespace String_{
-    RUMAL_JS_DECLARE_CALLABLE(includes)
-    RUMAL_JS_DECLARE_CALLABLE(charAt)
-    RUMAL_JS_DECLARE_CALLABLE(charCodeAt)
-    RUMAL_JS_DECLARE_CALLABLE(codePointAt)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(concat)
-    RUMAL_JS_DECLARE_CALLABLE(startsWith)
-    RUMAL_JS_DECLARE_CALLABLE(endsWith)
-    RUMAL_JS_DECLARE_RETURNING_CALLABLE(indexOf, Number)
-    RUMAL_JS_DECLARE_RETURNING_CALLABLE(lastIndexOf, Number)
-    RUMAL_JS_DECLARE_RETURNING_CALLABLE(match, Array)
-    RUMAL_JS_DECLARE_RETURNING_CALLABLE(matchAll, Array)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(normalize)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(repeat)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(replace)
-    RUMAL_JS_DECLARE_CALLABLE(search)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(split)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(slice)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(substring)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(toLowerCase)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(toUpperCase)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(trim)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(trimStart)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(trimLeft)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(trimEnd)
-    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(trimRight)
-}
-template <typename T>
-struct String{
-    rumal::js::property_<Number, T> length;
-};
-
-}
-
-namespace libs{
 namespace dom{
     
 template <typename T>
-struct node{    
-    node(const T& pkt){}
+struct Node;
+
+template <typename T>
+struct NodeList;
+
+template <typename T>
+struct Element;
+
+template <typename T>
+struct NamedNodeMap;
+
+template <typename T>
+struct DOMTokenList;
+
+template <typename T>
+struct HTMLCollection;
+
+template <typename T>
+struct Attr;
+
+namespace NodeList_{
+    RUMAL_JS_DECLARE_RETURNING_CALLABLE(item, Node)
+    RUMAL_JS_DECLARE_RETURNING_CALLABLE(entries, rumal::js::types::Array)
+    RUMAL_JS_DECLARE_CALLABLE(forEach)
+    RUMAL_JS_DECLARE_RETURNING_CALLABLE(keys, rumal::js::types::Array)
+    RUMAL_JS_DECLARE_RETURNING_CALLABLE(values, rumal::js::types::Array)
+}
+template <typename T>
+struct NodeList: rumal::js::iterable_<T, Node>{
+    rumal::js::property_<rumal::js::types::Number, T> length;
+    rumal::js::method_<NodeList_::item_, T> item;
+    rumal::js::method_<NodeList_::entries_, T> entries;
+    rumal::js::method_<NodeList_::forEach_, T> forEach;
+    rumal::js::method_<NodeList_::keys_, T> keys;
+    rumal::js::method_<NodeList_::values_, T> values;
+    
+    NodeList(const T& pkt): rumal::js::iterable_<T, Node>(pkt), 
+        length("length", pkt), item(pkt), entries(pkt), forEach(pkt), keys(pkt), values(pkt){}
+};
+    
+namespace Node_{
+    RUMAL_JS_DECLARE_CALLABLE(appendChild)
+    RUMAL_JS_DECLARE_RETURNING_CALLABLE(cloneNode, Node)
+    RUMAL_JS_DECLARE_CALLABLE(contains)
+    RUMAL_JS_DECLARE_CALLABLE(hasChildNodes)
+    RUMAL_JS_DECLARE_CALLABLE(insertBefore)
+    RUMAL_JS_DECLARE_CALLABLE(isEqualNode)
+    RUMAL_JS_DECLARE_CALLABLE(isSameNode)
+    RUMAL_JS_DECLARE_CALLABLE(normalize)
+    RUMAL_JS_DECLARE_CALLABLE(removeChild)
+    RUMAL_JS_DECLARE_RETURNING_CALLABLE(replaceChild, Node)
+}
+template <typename T>
+struct Node{
+    rumal::js::member_<Node, T> firstChild;
+    rumal::js::property_<rumal::js::types::Number, T> isConnected;
+    rumal::js::member_<Node, T> lastChild;
+    rumal::js::member_<Node, T> previousSibling;
+    rumal::js::member_<Node, T> nextSibling;
+    rumal::js::property_<rumal::js::types::String, T> nodeName;
+    rumal::js::property_<rumal::js::types::Number, T> nodeType;
+    rumal::js::property_<rumal::js::types::String, T> nodeValue;
+    rumal::js::member_<Node, T> parentNode;
+    rumal::js::member_<Element, T> parentElement;
+    rumal::js::property_<NodeList, T> childNodes;
+    
+    Node(const T& pkt): firstChild("firstChild", pkt), isConnected("isConnected", pkt), lastChild("lastChild", pkt), previousSibling("previousSibling", pkt), nextSibling("nextSibling", pkt), 
+        nodeName("nodeName", pkt), nodeType("nodeType", pkt), nodeValue("nodeValue", pkt), parentNode("parentNode", pkt), parentElement("parentElement", pkt), childNodes("childNodes", pkt){}
 };
 
+namespace Element_{
+    RUMAL_JS_DECLARE_CALLABLE(addEventListener)
+    RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(closest)
+    RUMAL_JS_DECLARE_CALLABLE(dispatchEvent)
+}
+template <typename T>
+struct Element: Node<T>{
+    rumal::js::property_<NamedNodeMap, T> attributes;
+    rumal::js::property_<DOMTokenList, T> classList;
+    rumal::js::property_<rumal::js::types::String, T> className;
+    rumal::js::property_<rumal::js::types::Number, T> clientHeight;
+    rumal::js::property_<rumal::js::types::Number, T> clientLeft;
+    rumal::js::property_<rumal::js::types::Number, T> clientTop;
+    rumal::js::property_<rumal::js::types::Number, T> clientWidth;
+    rumal::js::property_<rumal::js::types::String, T> computedName;
+    rumal::js::property_<rumal::js::types::String, T> computedRole;
+    rumal::js::property_<rumal::js::types::String, T> id;
+    rumal::js::property_<rumal::js::types::String, T> innerHTML;
+    rumal::js::property_<rumal::js::types::String, T> localName;
+    rumal::js::member_<Element, T> nextElementSibling;
+    rumal::js::property_<rumal::js::types::String, T> outerHTML;
+    rumal::js::member_<Element, T> previousElementSibling;
+    rumal::js::property_<rumal::js::types::Number, T> scrollHeight;
+    rumal::js::property_<rumal::js::types::Number, T> scrollLeft;
+    rumal::js::property_<rumal::js::types::Number, T> scrollTop;
+    rumal::js::property_<rumal::js::types::Number, T> scrollWidth;
+    rumal::js::property_<rumal::js::types::String, T> tagName;
+    
+    
+    
+    Element(const T& pkt): Node<T>(pkt), 
+        attributes("attributes", pkt), classList("classList", pkt), className("className", pkt), clientHeight("clientHeight", pkt), clientLeft("clientLeft", pkt), clientTop("clientTop", pkt), clientWidth("clientWidth", pkt),
+        computedName("computedName", pkt), computedRole("computedRole", pkt), id("id", pkt), innerHTML("innerHTML", pkt), localName("localName", pkt), nextElementSibling("nextElementSibling", pkt), outerHTML("outerHTML", pkt), previousElementSibling("previousElementSibling", pkt),
+        scrollHeight("scrollHeight", pkt), scrollLeft("scrollLeft", pkt), scrollTop("scrollTop", pkt), scrollWidth("scrollWidth", pkt), tagName("tagName", pkt)
+        {}
+};
+
+namespace NamedNodeMap_{
+    RUMAL_JS_DECLARE_RETURNING_CALLABLE(getNamedItem, Attr)
+    RUMAL_JS_DECLARE_CALLABLE(setNamedItem)
+    RUMAL_JS_DECLARE_CALLABLE(removeNamedItem)
+    RUMAL_JS_DECLARE_RETURNING_CALLABLE(item, Attr)
+}
+template <typename T>
+struct NamedNodeMap: rumal::js::iterable_<T, Attr>{
+    rumal::js::property_<rumal::js::types::Number, T> length;
+    
+    rumal::js::method_<NamedNodeMap_::getNamedItem_, T> getNamedItem;
+    rumal::js::method_<NamedNodeMap_::setNamedItem_, T> setNamedItem;
+    rumal::js::method_<NamedNodeMap_::removeNamedItem_, T> removeNamedItem;
+    rumal::js::method_<NamedNodeMap_::item_, T> item;
+    
+    NamedNodeMap(const T& pkt): length("length", pkt), getNamedItem(pkt), setNamedItem(pkt), removeNamedItem(pkt), item(pkt){}
+};
+
+namespace DOMTokenList_{
+    RUMAL_JS_DECLARE_RETURNING_CALLABLE(item, rumal::js::types::String)
+    RUMAL_JS_DECLARE_CALLABLE(contains)
+    RUMAL_JS_DECLARE_CALLABLE(add)
+    RUMAL_JS_DECLARE_CALLABLE(remove)
+    RUMAL_JS_DECLARE_CALLABLE(replace)
+    RUMAL_JS_DECLARE_CALLABLE(supports)
+    RUMAL_JS_DECLARE_CALLABLE(toggle)
+    RUMAL_JS_DECLARE_CALLABLE(entries)
+    RUMAL_JS_DECLARE_CALLABLE(keys)
+    RUMAL_JS_DECLARE_CALLABLE(forEach)
+    RUMAL_JS_DECLARE_CALLABLE(values)
+}
+template <typename T>
+struct DOMTokenList: rumal::js::iterable_<T, rumal::js::types::String>{
+    rumal::js::property_<rumal::js::types::Number, T> length;
+    rumal::js::property_<rumal::js::types::String, T> value;
+    
+    rumal::js::method_<DOMTokenList_::item_, T> item;
+    rumal::js::method_<DOMTokenList_::contains_, T> contains;
+    rumal::js::method_<DOMTokenList_::add_, T> add;
+    rumal::js::method_<DOMTokenList_::remove_, T> remove;
+    rumal::js::method_<DOMTokenList_::replace_, T> replace;
+    rumal::js::method_<DOMTokenList_::supports_, T> supports;
+    rumal::js::method_<DOMTokenList_::toggle_, T> toggle;
+    rumal::js::method_<DOMTokenList_::entries_, T> entries;
+    rumal::js::method_<DOMTokenList_::keys_, T> keys;
+    rumal::js::method_<DOMTokenList_::forEach_, T> forEach;
+    rumal::js::method_<DOMTokenList_::values_, T> values;
+    
+    DOMTokenList(const T& pkt): rumal::js::iterable_<T, rumal::js::types::String>(pkt), length("length", pkt), value("value", pkt),
+        item(pkt), contains(pkt), add(pkt), remove(pkt), replace(pkt), supports(pkt), toggle(pkt), entries(pkt), keys(pkt), forEach(pkt), values(pkt){}
+};
+
+template <typename T>
+struct Attr{};
     
 }
 }
 }
-}
 
-#endif // RUMAL_JS_DOM_H
+#endif // RUMAL_JS_DOMS_H

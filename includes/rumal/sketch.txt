@@ -553,3 +553,27 @@ rumal::js::scope_expression<
     >
 >
 
+
+
+rumal::js::returned_<
+    rumal::js::packets::index<
+        rumal::js::packets::access<
+            rumal::js::packets::call<
+                rumal::js::packets::call<rumal::js::none_type>, 
+                int
+            > 
+        >, 
+        int
+    >, 
+    rumal::js::dom::Node<
+        rumal::js::packets::index<
+            rumal::js::packets::access<
+                rumal::js::packets::call<
+                    rumal::js::packets::call<rumal::js::none_type>, 
+                    int
+                > 
+            >, 
+            int
+        > 
+    > 
+>

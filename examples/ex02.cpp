@@ -1,6 +1,7 @@
 #include <iostream>
 #include <rumal/rumal.hpp>
 #include <boost/lexical_cast.hpp>
+#include <rumal/types.hpp>
 #include <rumal/dom.hpp>
 
 struct fn_: rumal::js::callable_<fn_>{

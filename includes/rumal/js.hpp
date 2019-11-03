@@ -579,6 +579,24 @@ StreamT& operator<<(StreamT& stream, const property_<FollowT, PacketT>& prop){
     return stream;
 }
 
+template <template<typename> class FollowT, typename PacketT>
+struct member_: public expression_<packets::access<PacketT>>{
+    typedef packets::access<PacketT> packet_type;
+    typedef FollowT<packets::access<PacketT>> follow_type;
+    typedef expression_<packets::access<PacketT>> expression_type;
+     
+    member_(const char* name, const PacketT& pkt): expression_type(packet_type(pkt, name)){}
+    returned_<packets::access<PacketT>, follow_type> operator()(){
+        auto pkt = expression_type::_packet;
+        return returned_<packets::access<PacketT>, follow_type>(pkt);
+    }
+};
+template <typename StreamT, template<typename> class FollowT, typename PacketT>
+StreamT& operator<<(StreamT& stream, const member_<FollowT, PacketT>& prop){
+    prop.write(stream);
+    return stream;
+}
+
 template <typename L, typename R>
 struct binary_expression: public expression_<packets::binary<typename L::packet_type, typename R::packet_type>>{
     typedef L left_expr_type;
