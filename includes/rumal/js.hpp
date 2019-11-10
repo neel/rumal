@@ -30,6 +30,8 @@
 #include <type_traits>
 #include <boost/hana/tuple.hpp>
 
+typedef std::string string_type;
+
 #define RUMAL_JS_INDENTATION_TAB    "\t"
 #define RUMAL_JS_PARENTHESIS_OPEN   "("
 #define RUMAL_JS_PARENTHESIS_CLOSE  ")"
@@ -76,7 +78,7 @@ StreamT& operator<<(StreamT& stream, const value_wrapper_<T>& v){
 
 template <int N>
 struct value_wrapper_<char[N]>{
-    typedef const char* value_type;
+    typedef string_type value_type;
     
     value_type _val;
     
@@ -135,7 +137,7 @@ struct trans{
 };
 template <int N>
 struct trans<char[N]>{
-    typedef const char* type;
+    typedef string_type type;
 };
 
 template <typename T>
@@ -174,11 +176,11 @@ namespace packets{
         typedef boost::hana::tuple<trans_t<Args>...> tuple_type;
         typedef call<ParentT, Args...> self_type;
         
-        const char* _name;
+        string_type _name;
         parent_type _parent;
         tuple_type  _args;
         
-        call(const char* name, const parent_type& parent, const Args&... args): _name(name), _parent(parent), _args(args...){}
+        call(string_type name, const parent_type& parent, const Args&... args): _name(name), _parent(parent), _args(args...){}
         call(const self_type& other): _name(other._name), _parent(other._parent), _args(other._args){}
         self_type& operator=(const self_type& other){
             _name   = other._name;
@@ -208,9 +210,9 @@ namespace packets{
         typedef access<ParentT> self_type;
         
         parent_type _parent;
-        const char* _name;
+        string_type _name;
         
-        access(const parent_type& parent, const char* name):_parent(parent), _name(name){}
+        access(const parent_type& parent, string_type name):_parent(parent), _name(name){}
         access(const self_type& other): _parent(other._parent), _name(other._name){}
         self_type& operator=(const self_type& other){
             _parent = other._parent;
@@ -253,11 +255,11 @@ namespace packets{
         typedef LeftT left_packet_type;
         typedef RightT right_packet_type;
         
-        const char*       _op;
+        string_type       _op;
         left_packet_type  _left;
         right_packet_type _right;
         
-        binary(const char* op, const left_packet_type& left, const right_packet_type& right): _op(op), _left(left), _right(right){}
+        binary(string_type op, const left_packet_type& left, const right_packet_type& right): _op(op), _left(left), _right(right){}
         template <typename StreamT>
         StreamT& write(StreamT& stream, int level = 0) const{
             _left.write(stream, level);
@@ -344,9 +346,9 @@ namespace packets{
         
         head_type _head;
         body_type _body;
-        const char* _name;
+        string_type _name;
         
-        scope(const char* name, const head_type& head, const body_type& body): _head(head), _body(body), _name(name){}
+        scope(string_type name, const head_type& head, const body_type& body): _head(head), _body(body), _name(name){}
         template <typename StreamT>
         StreamT& write(StreamT& stream, int level = 0) const{
             stream << _name << RUMAL_JS_PARENTHESIS_OPEN;
@@ -372,9 +374,9 @@ namespace packets{
         typedef BodyT body_type;
 
         body_type _body;
-        const char* _name;
+        string_type _name;
         
-        scope(const char* name, const body_type& body): _body(body), _name(name){}
+        scope(string_type name, const body_type& body): _body(body), _name(name){}
         template <typename StreamT>
         StreamT& write(StreamT& stream, int level = 0) const{
             stream << _name << RUMAL_JS_CURLYBRACE_OPEN << RUMAL_JS_NEWLINE;
@@ -471,10 +473,10 @@ struct callable_: public expression_<packets::access<none_type>>{
     typedef expression_<packets::access<none_type>> expression_type;
     template <typename PacketT> using follow = RetT<PacketT>;
     
-    const char* _name;
+    string_type _name;
     
-    explicit callable_(const char* name): expression_type(packets::access<none_type>(none_type(), name)), _name(name){}
-    const char* name() const {return _name;}
+    explicit callable_(string_type name): expression_type(packets::access<none_type>(none_type(), name)), _name(name){}
+    string_type name() const {return _name;}
     template <typename... Args>
     returned_<packets::call<none_type, Args...>, follow<packets::call<none_type, Args...>>> operator()(const Args&... args){  
         packets::call<none_type, Args...> pckt(_name, none_type(), args...);
@@ -489,10 +491,10 @@ struct callable_<DerivedT, meta_void>: public expression_<packets::access<none_t
     typedef expression_<packets::access<none_type>> expression_type;
     typedef bool leaf_type;
     
-    const char* _name;
+    string_type _name;
     
-    explicit callable_(const char* name): expression_type(packets::access<none_type>(none_type(), name)), _name(name){}
-    const char* name() const {return _name;}
+    explicit callable_(string_type name): expression_type(packets::access<none_type>(none_type(), name)), _name(name){}
+    string_type name() const {return _name;}
     template <typename... Args>
     returned_<packets::call<none_type, Args...>, void> operator()(const Args&... args){  
         packets::call<none_type, Args...> pckt(_name, none_type(), args...);
@@ -571,7 +573,7 @@ struct property_: public FollowT<packets::access<PacketT>>, public expression_<p
     typedef FollowT<packets::access<PacketT>> follow_type;
     typedef expression_<packets::access<PacketT>> expression_type;
      
-    property_(const char* name, const PacketT& pkt): follow_type(packet_type(pkt, name)), expression_type(packet_type(pkt, name)){}
+    property_(string_type name, const PacketT& pkt): follow_type(packet_type(pkt, name)), expression_type(packet_type(pkt, name)){}
 };
 template <typename StreamT, template<typename> class FollowT, typename PacketT>
 StreamT& operator<<(StreamT& stream, const property_<FollowT, PacketT>& prop){
@@ -585,7 +587,7 @@ struct member_: public expression_<packets::access<PacketT>>{
     typedef FollowT<packets::access<PacketT>> follow_type;
     typedef expression_<packets::access<PacketT>> expression_type;
      
-    member_(const char* name, const PacketT& pkt): expression_type(packet_type(pkt, name)){}
+    member_(string_type name, const PacketT& pkt): expression_type(packet_type(pkt, name)){}
     returned_<packets::access<PacketT>, follow_type> operator()(){
         auto pkt = expression_type::_packet;
         return returned_<packets::access<PacketT>, follow_type>(pkt);
@@ -606,7 +608,7 @@ struct binary_expression: public expression_<packets::binary<typename L::packet_
     typedef packets::binary<typename L::packet_type, typename R::packet_type> packet_type;
     typedef expression_<packet_type> expression_type;
     
-    binary_expression(const char* op, const L& left, const R& right): expression_type(packet_type(op, left._packet, right._packet)){}
+    binary_expression(string_type op, const L& left, const R& right): expression_type(packet_type(op, left._packet, right._packet)){}
 };
 
 template <typename StreamT, typename L, typename R>
@@ -883,9 +885,9 @@ struct assignable: public expression_<packets::access<none_type>>, public Follow
     typedef expression_<packets::access<none_type>> expression_type;
     typedef FollowT<packets::access<none_type>> follow_type;
     
-    const char* _name;
+//     string_type _name;
     
-    explicit assignable(const char* name): expression_type(packets::access<none_type>(none_type(), name)), FollowT<packets::access<none_type>>(packets::access<none_type>(none_type(), name)), _name(name){}
+    explicit assignable(string_type name): expression_type(packets::access<none_type>(none_type(), name)), FollowT<packets::access<none_type>>(packets::access<none_type>(none_type(), name))/*, _name(name)*/{}
 };
 template <typename StreamT, template<typename> class FollowT>
 StreamT& operator<<(StreamT& stream, const assignable<FollowT>& var){
@@ -952,15 +954,15 @@ namespace packets{
 }
 
 struct let_{
-    inline static const char* specifier = "let";
+    inline static string_type specifier = "let";
 };
 
 struct const_{
-    inline static const char* specifier = "const";
+    inline static string_type specifier = "const";
 };
 
 struct var_{
-    inline static const char* specifier = "var";
+    inline static string_type specifier = "var";
 };
 
 template <typename AssignableT, typename AccessT>
@@ -999,11 +1001,11 @@ declaration_expression<assignable<FollowT>, var_> _var(const assignable<FollowT>
 
 template <typename HeadT, typename BodyT>
 struct scope_expression: public expression_<packets::scope<HeadT, BodyT>>{
-    scope_expression(const char* name, const HeadT& head, const BodyT& body): expression_<packets::scope<HeadT, BodyT>>(packets::scope<HeadT, BodyT>(name, head, body)){}
+    scope_expression(string_type name, const HeadT& head, const BodyT& body): expression_<packets::scope<HeadT, BodyT>>(packets::scope<HeadT, BodyT>(name, head, body)){}
 };
 template <typename BodyT>
 struct scope_expression<void, BodyT>: public expression_<packets::scope<void, BodyT>>{
-    scope_expression(const char* name, const BodyT& body): expression_<packets::scope<void, BodyT>>(packets::scope<void, BodyT>(name, body)){}
+    scope_expression(string_type name, const BodyT& body): expression_<packets::scope<void, BodyT>>(packets::scope<void, BodyT>(name, body)){}
 };
 
 template <typename StreamT, typename HeadT, typename BodyT>
@@ -1016,10 +1018,10 @@ template <typename ConditionT=void>
 struct labeled_block_{
     typedef ConditionT condition_type;
     
-    const char* _label;
+    string_type _label;
     condition_type _condition;
     
-    labeled_block_(const char* label, const condition_type& condition): _label(label), _condition(condition){}
+    labeled_block_(string_type label, const condition_type& condition): _label(label), _condition(condition){}
     template <typename BodyT>
     scope_expression<ConditionT, BodyT> operator[](const BodyT& body){
         return scope_expression<ConditionT, BodyT>(_label, _condition, body);
@@ -1027,9 +1029,9 @@ struct labeled_block_{
 };
 template <>
 struct labeled_block_<void>{    
-    const char* _label;
+    string_type _label;
     
-    labeled_block_(const char* label): _label(label){}
+    labeled_block_(string_type label): _label(label){}
     template <typename BodyT>
     scope_expression<void, BodyT> operator[](const BodyT& body){
         return scope_expression<void, BodyT>(_label, body);

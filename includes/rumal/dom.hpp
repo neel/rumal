@@ -157,7 +157,7 @@ struct NamedNodeMap: rumal::js::iterable_<T, Attr>{
     rumal::js::method_<NamedNodeMap_::removeNamedItem_, T> removeNamedItem;
     rumal::js::method_<NamedNodeMap_::item_, T> item;
     
-    NamedNodeMap(const T& pkt): length("length", pkt), getNamedItem(pkt), setNamedItem(pkt), removeNamedItem(pkt), item(pkt){}
+    NamedNodeMap(const T& pkt): rumal::js::iterable_<T, Attr>(pkt), length("length", pkt), getNamedItem(pkt), setNamedItem(pkt), removeNamedItem(pkt), item(pkt){}
 };
 
 namespace DOMTokenList_{

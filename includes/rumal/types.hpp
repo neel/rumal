@@ -51,6 +51,17 @@ template <typename T>
 struct terminal_{
     
 };
+
+template <typename T>
+struct Number;
+
+template <typename T>
+struct Boolean{
+    rumal::js::property_<Number, T> length;
+    
+    Boolean(const T& pkt): length("length", pkt){}
+};
+
 namespace Number_{
     RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(parseInt)
     RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(parseFloat)
@@ -63,14 +74,6 @@ namespace Number_{
 }
 template <typename T>
 struct Number{
-    rumal::js::member_<Number, T> EPSILON;
-//     rumal::js::property_<Number, T> MAX_SAFE_INTEGER;
-//     rumal::js::property_<Number, T> MAX_VALUE;
-//     rumal::js::property_<Number, T> MIN_SAFE_INTEGER;
-//     rumal::js::property_<Number, T> MIN_VALUE;
-//     rumal::js::property_<Number, T> NaN;
-//     rumal::js::property_<Number, T> NEGATIVE_INFINITY;
-//     rumal::js::property_<Number, T> POSITIVE_INFINITY;
     rumal::js::method_<Number_::isNaN_, T> isNAN;
     rumal::js::method_<Number_::isFinite_, T> isFinite;
     rumal::js::method_<Number_::isInteger_, T> isInteger;
@@ -80,7 +83,7 @@ struct Number{
     rumal::js::method_<Number_::toFixed_<Number>, T> toFixed;
     rumal::js::method_<Number_::toPrecision_<Number>, T> toPrecision;
     
-    Number(const T& pkt): EPSILON("EPSILON", pkt), isNAN(pkt), isFinite(pkt), isInteger(pkt), isSafeInteger(pkt), parseFloat(pkt), parseInt(pkt), toFixed(pkt), toPrecision(pkt){}
+    Number(const T& pkt): isNAN(pkt), isFinite(pkt), isInteger(pkt), isSafeInteger(pkt), parseFloat(pkt), parseInt(pkt), toFixed(pkt), toPrecision(pkt){}
 };
 namespace Array_{
     RUMAL_JS_DECLARE_FOLLOWING_CALLABLE(fill)
