@@ -43,7 +43,5 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv){
 
     std::cout << "Hello, world!" << std::endl;
     
-    std::cout << ((rumal::js::_let("x") = 2) = 3) << std::endl;
-    
     return 0;
 }

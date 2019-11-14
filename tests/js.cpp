@@ -6,6 +6,7 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string_regex.hpp>
 #include <rumal/rumal.hpp>
+#include <rumal/js.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
