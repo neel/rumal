@@ -175,6 +175,18 @@ namespace rumal{
             DEFINE_HTML_ATTRIBUTE(value)
             DEFINE_HTML_ATTRIBUTE(width)
             DEFINE_HTML_ATTRIBUTE(wrap)
+            
+            namespace vue{
+                DEFINE_LABELED_HTML_ATTRIBUTE(vif, "v-if")
+                DEFINE_LABELED_HTML_ATTRIBUTE(velse, "v-else")
+                namespace on{
+                    DEFINE_LABELED_HTML_ATTRIBUTE(click, "v-on:click")
+                    DEFINE_LABELED_HTML_ATTRIBUTE(focus, "v-on:focus")
+                }
+                namespace bind{
+                    DEFINE_LABELED_HTML_ATTRIBUTE(href, "v-bind:href")
+                }
+            }
         }
         namespace tags{
             DEFINE_HTML_TAG(div)
@@ -192,6 +204,11 @@ namespace rumal{
             DEFINE_HTML_TAG(img)
             DEFINE_HTML_TAG(script)
             DEFINE_HTML_TAG(link)
+        }
+        namespace vue{
+            namespace tags{
+                
+            }
         }
     }
     namespace css{
