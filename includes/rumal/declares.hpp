@@ -204,6 +204,7 @@ namespace rumal{
             DEFINE_HTML_TAG(img)
             DEFINE_HTML_TAG(script)
             DEFINE_HTML_TAG(link)
+            DEFINE_HTML_TAG(button)
         }
         namespace vue{
             namespace tags{
