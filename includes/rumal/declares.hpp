@@ -177,15 +177,11 @@ namespace rumal{
             DEFINE_HTML_ATTRIBUTE(wrap)
             
             namespace vue{
-                DEFINE_LABELED_HTML_ATTRIBUTE(vif, "v-if")
-                DEFINE_LABELED_HTML_ATTRIBUTE(velse, "v-else")
-                namespace on{
-                    DEFINE_LABELED_HTML_ATTRIBUTE(click, "v-on:click")
-                    DEFINE_LABELED_HTML_ATTRIBUTE(focus, "v-on:focus")
-                }
-                namespace bind{
-                    DEFINE_LABELED_HTML_ATTRIBUTE(href, "v-bind:href")
-                }
+                DEFINE_LABELED_HTML_ATTRIBUTE(_for, "v-for")
+                DEFINE_LABELED_HTML_ATTRIBUTE(_if, "v-if")
+                DEFINE_LABELED_HTML_ATTRIBUTE(_else, "v-else")
+                template <typename T> auto on(const std::string& event, T value){return rumal::html::attr("v-on:"+event, value);}
+                template <typename T> auto bind(const std::string& event, T value){return rumal::html::attr("v-bind:"+event, value);}
             }
         }
         namespace tags{
