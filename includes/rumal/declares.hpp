@@ -27,7 +27,10 @@
 #ifndef RUMAL_DECLARES_H
 #define RUMAL_DECLARES_H
 
+#include <set>
+#include <iostream>
 #include <rumal/base.hpp>
+#include <boost/lexical_cast.hpp>
 
 #define DEFINE_HTML_ATTRIBUTE(name) template <typename T> auto _##name(T value){return rumal::html::attr(#name, value);}
 #define DEFINE_LABELED_HTML_ATTRIBUTE(name, label) template <typename T> auto name(T value){return rumal::html::attr(label, value);}
@@ -209,6 +212,8 @@ namespace rumal{
         }
     }
     namespace css{
+        constexpr const std::uint32_t scoped = 1;
+        
         namespace props{
             DEFINE_LABELED_CSS_ATTRIBUTE(background, "background")
             DEFINE_LABELED_CSS_ATTRIBUTE(backgroundAttachment, "background-attachment")
@@ -284,6 +289,30 @@ namespace rumal{
             DEFINE_LABELED_CSS_ATTRIBUTE(width, "width")
             DEFINE_LABELED_CSS_ATTRIBUTE(zIndex, "z-index")
         }
+    }
+    
+    template <std::uint32_t... U>
+    struct fragment{
+        typedef fragment<U...> self_type;
+        
+        const std::string _content;
+        const std::initializer_list<std::uint32_t> _init;
+        const std::set<std::uint32_t> _flags;
+        
+        fragment():_init({U...}), _flags(_init.begin(), _init.end()){}
+        fragment(const self_type& other): _content(other._content), _init(other._init), _flags(other._flags){}
+        template <typename T>
+        fragment(const T& block): _content(boost::lexical_cast<std::string>(block)), _init({U...}), _flags(_init.begin(), _init.end()){}
+        template <std::uint32_t Flag>
+        bool has() const{
+            return (_flags.find(Flag) != _flags.cend());
+        }
+    };
+    
+    template <std::uint32_t... U>
+    std::ostream& operator<<(std::ostream& stream, const rumal::fragment<U...>& frag){
+        stream << frag._content;
+        return stream;
     }
 }
 
