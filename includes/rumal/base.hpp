@@ -45,12 +45,13 @@ namespace rumal{
  */
 template <typename P, typename T>
 struct attribute{
+    typedef typename P::key_type key_type;
     typedef T value_type;
    
-    const char* _key;
+    key_type _key;
     value_type _value;
    
-    attribute(const char* key, value_type value): _key(key), _value(value){}
+    attribute(key_type key, value_type value): _key(key), _value(value){}
     template <typename StreamT>
     StreamT& write(StreamT& stream) const{
         P::write(stream, _key, _value);
@@ -120,9 +121,9 @@ struct folded_attribute_writer<P, folded_attribute<U, void>>{
  * @param right rhs attribute
  * @return folded_attribute
  */
-template <typename P, typename U, typename V>
-auto operator/(const attribute<P, U>& left, const attribute<P, V>& right){
-    return folded_attribute<attribute<P, V>, folded_attribute<attribute<P, U>, void>>(right, folded_attribute<attribute<P, U>, void>(left));
+template <typename P, typename H, typename U, typename V>
+auto operator/(const attribute<P, U>& left, const attribute<H, V>& right){
+    return folded_attribute<attribute<H, V>, folded_attribute<attribute<P, U>, void>>(right, folded_attribute<attribute<P, U>, void>(left));
 }
 
 /**
@@ -141,9 +142,12 @@ namespace html{
 /**
  * @brief html attribute printing trait
  */
+template <typename KeyT>
 struct html_attribute_trait{
+    typedef KeyT key_type;
+    
     template <typename StreamT, typename T>
-    static StreamT& write(StreamT& stream, const char* key, T value){
+    static StreamT& write(StreamT& stream, KeyT key, T value){
         stream << boost::format("%1%='%2%'") % key % value;
         return stream;
     }
@@ -156,17 +160,18 @@ struct html_attribute_trait{
  * @brief generate an attribute from key and value
  * @tparam T value type
  */   
-template <typename T>
-attribute<html_attribute_trait, T> attr(const char* key, T value){
-    return attribute<html_attribute_trait, T>(key, value);
+template <typename K, typename T>
+attribute<html_attribute_trait<K>, T> attr(K key, T value){
+    return attribute<html_attribute_trait<K>, T>(key, value);
 }
 
+template <typename K>
 struct keyed_attr{
-    const char* _key;
-    explicit keyed_attr(const char* key): _key(key){}
+    K _key;
+    explicit keyed_attr(K key): _key(key){}
    
     template <typename T>
-    attribute<html_attribute_trait, T> operator()(T value) const{
+    attribute<html_attribute_trait<K>, T> operator()(T value) const{
         return attr(_key, value);
     }
 };
@@ -347,6 +352,8 @@ std::ostream& operator<<(std::ostream& stream, const html::html_tag<T...>& elem)
 namespace css{
     
 struct css_attribute_trait{
+    typedef const char* key_type;
+    
     template <typename StreamT, typename T>
     static StreamT& write(StreamT& stream, const char* key, T value){
         stream << boost::format("%1%: %2%") % key % value;

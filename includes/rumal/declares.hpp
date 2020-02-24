@@ -31,6 +31,7 @@
 #include <iostream>
 #include <rumal/base.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
 
 #define DEFINE_HTML_ATTRIBUTE(name) template <typename T> auto _##name(T value){return rumal::html::attr(#name, value);}
 #define DEFINE_LABELED_HTML_ATTRIBUTE(name, label) template <typename T> auto name(T value){return rumal::html::attr(label, value);}
@@ -183,8 +184,13 @@ namespace rumal{
                 DEFINE_LABELED_HTML_ATTRIBUTE(_for, "v-for")
                 DEFINE_LABELED_HTML_ATTRIBUTE(_if, "v-if")
                 DEFINE_LABELED_HTML_ATTRIBUTE(_else, "v-else")
-                template <typename T> auto on(const std::string& event, T value){return rumal::html::attr("v-on:"+event, value);}
-                template <typename T> auto bind(const std::string& event, T value){return rumal::html::attr("v-bind:"+event, value);}
+                template <typename T> auto on(const char* event, T value){
+                    std::string key = (boost::format("v-on:%1%") % event).str();
+                    return rumal::html::attr(key, value);
+                }
+                template <typename T> auto bind(const char* event, T value){
+                    return rumal::html::attr(("v-bind:"+std::string(event)).data(), value);
+                }
             }
         }
         namespace tags{
