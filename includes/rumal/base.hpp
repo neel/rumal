@@ -459,6 +459,11 @@ auto select(const char* name, const folded_attribute<U, V>& args, const T&... el
     return css_selector<folded_attribute<U, V>, T...>(name, args, elems...);
 }
 
+template <typename P, typename U, typename... T>
+auto select(const char* name, const attribute<P, U>& arg, const T&... elems){
+    return css_selector<folded_attribute<attribute<P, U>, void>, T...>(name, folded_attribute<attribute<P, U>, void>(arg), elems...);
+}
+
 template <typename... T>
 std::ostream& operator<<(std::ostream& stream, const css_selector<T...>& elem){
     std::vector<const char*> ancestors;
