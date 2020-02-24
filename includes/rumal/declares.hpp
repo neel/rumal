@@ -189,7 +189,8 @@ namespace rumal{
                     return rumal::html::attr(key, value);
                 }
                 template <typename T> auto bind(const char* event, T value){
-                    return rumal::html::attr(("v-bind:"+std::string(event)).data(), value);
+                    std::string key = (boost::format("v-bind:%1%") % event).str();
+                    return rumal::html::attr(key, value);
                 }
             }
         }
